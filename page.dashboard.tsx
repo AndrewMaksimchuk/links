@@ -1,6 +1,5 @@
+import { Fragment, type FC, type PropsWithChildren } from 'hono/jsx'
 import type { User } from "./service.user"
-import type { Link } from "./service.link"
-import { Fragment, type FC } from 'hono/jsx'
 import { routes } from "./service.router"
 
 
@@ -76,38 +75,13 @@ const Header: FC<{ name: string | undefined }> = (props) => {
     );
 }
 
-const Link: FC<{ link: Partial<Link> }> = (props) => {
-    return (
-        <article>
-            <header>{props.link.title}</header>
-            <p></p>
-            Body
-            <footer>
-                <p style='text-align: right;'>{(new Date(props.link.created_at || Date.now())).toDateString()}</p>
-                <p>/* list of tags here*/</p>
-                <p style='display: flex; align-items: center; justify-content: right; gap: 1rem;'>
-                    <a href={props.link.url} target='_blank'>Open</a>
-                    <button type="button" style='margin: 0;' className='outline'>Edit</button>
-                    <button type="button" style='margin: 0;' className='outline'>Delete</button>
-                </p>
-            </footer>
-        </article>
-    );
-}
-
-export const Dashboard: FC<{ user?: Pick<User, 'name'> }> = (props) => {
+export const Dashboard = (props: PropsWithChildren<{ user?: Pick<User, 'name'> }>) => {
     return (
         <Fragment>
             <Header name={props.user?.name}></Header>
             <main>
                 <section class="grid" style="grid-template-columns: repeat(4, 1fr);">
-                    <Link link={{ title: 'Header', created_at: 1, url: 'http://localhost:6969' }} />
-                    <Link link={{ title: 'Header', created_at: 1, url: 'http://localhost:6969' }} />
-                    <Link link={{ title: 'Header', created_at: 1, url: 'http://localhost:6969' }} />
-                    <Link link={{ title: 'Header', created_at: 1, url: 'http://localhost:6969' }} />
-                    <Link link={{ title: 'Header', created_at: 1, url: 'http://localhost:6969' }} />
-                    <Link link={{ title: 'Header', created_at: 1, url: 'http://localhost:6969' }} />
-                    <Link link={{ title: 'Header', created_at: 1, url: 'http://localhost:6969' }} />
+                    { props.children }
                 </section>
             </main>
         </Fragment>

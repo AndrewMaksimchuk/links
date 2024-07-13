@@ -133,6 +133,22 @@ export class ServiceDatabase {
     }
 
 
+    private getLinkById(link_id: number) {
+        Logger.log('Function: getLinkById', __filename)
+        const sqlQuery = `SELECT * FROM ${this.tables.links} WHERE link_id = ?;`
+        const query = this.database.query<LinkDatabase, number>(sqlQuery)
+        return query.get(link_id);
+    }
+
+
+    public getLinksUser(userId: number) {
+        Logger.log('Function: getLinksUser', __filename)
+        const sqlQuery = `SELECT * FROM ${this.tables.links} WHERE user_id = $userId;`
+        const query = this.database.query<LinkDatabase, { $userId: number }>(sqlQuery)
+        return query.all({ $userId: userId });
+    }
+
+
     // public createLink(link: Omit<LinkDatabase, "link_id">) {
     //     Logger.log('Function: createLink', __filename)
     //     const sqlQuery = `INSERT INTO ${this.tables.links} (user_id, url, created_at, title, image, audio, description, locale, site_name, video, tags) 
@@ -147,5 +163,13 @@ export class ServiceDatabase {
                           VALUES (?, ?, ?);`
         this.database.run(sqlQuery, [link.user_id, link.url, link.created_at])
         return this.getLink(link.url);
+    }
+
+    
+    public deleteLink(linkId: number) {
+        Logger.log('Function: deleteLink', __filename)
+        const sqlQuery = `DELETE FROM ${this.tables.links} WHERE link_id = ?;`
+        this.database.run(sqlQuery, [linkId])
+        return !Boolean(this.getLinkById(linkId));
     }
 }

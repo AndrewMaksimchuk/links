@@ -8,7 +8,7 @@ import { Logger } from "./service.logger"
 import { Layout } from "./page.layout"
 import { Index } from "./page.index"
 import { Notification } from "./component.notification"
-
+import { Links } from "./component.links"
 
 export const routes = {
   main: '/',
@@ -107,7 +107,15 @@ export class Router {
 
   public dashboard = async (ctx: Context) => {
     Logger.log('Function: dashboard', __filename)
-    return ctx.html(<Layout><Dashboard/></Layout>);
+    const token = await this.serviceAuth.getLoginToken(ctx)
+    const userId = 'string' === typeof token ? this.serviceUser.getUserData(token, "user_id") : null
+    const userLinks = 'number' === typeof userId ? this.serviceLink.getLinks(userId) : []
+    return ctx.html(
+      <Layout>
+        <Dashboard>
+          <Links links={ userLinks }></Links>
+        </Dashboard>
+      </Layout>);
   }
 
   public search(ctx: Context) {
@@ -130,16 +138,26 @@ export class Router {
       return ctx.html(<Notification status="warn" body="Can`t create new link!"></Notification>)
     }
 
-    return ctx.html(<Notification status="success" body="Add new link!"></Notification>)
+    const notificationid = Date.now()
+    ctx.header('HX-Trigger', JSON.stringify({ notifyClose: { notificationid } }))
+    return ctx.html(<Notification status="success" body="Add new link!" notificationid={ notificationid }></Notification>)
   }
 
   public linkEdit(ctx: Context) {
-    Logger.log('Function: addEdit', __filename)
+    Logger.log('Function: linkEdit', __filename)
     return ctx.html('Edit link!');
   }
   
-  public linkDelete(ctx: Context) {
-    Logger.log('Function: addDelete', __filename)
-    return ctx.html('Delete link!');
+  public linkDelete = async (ctx: Context) => {
+    Logger.log('Function: linkDelete', __filename)
+    const body = await ctx.req.parseBody<Stringify<Pick<Link, "link_id">>>()
+
+    if (this.serviceLink.deleteLink(Number(body.link_id))) {
+      const notificationid = Date.now()
+      ctx.header('HX-Trigger', JSON.stringify({ notifyClose: { notificationid } }))
+      return ctx.html(<Notification status="success" body="Link deleted" notificationid={notificationid}></Notification>);
+    }
+
+    return ctx.html(<Notification status="warn" body="Can`t delete link!"></Notification>);
   }
 }

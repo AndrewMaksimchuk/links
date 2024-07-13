@@ -22,10 +22,10 @@ app.post(router.routes.logout, router.logout)
 app.get(router.routes.main, router.main)
 app.use(router.usePrivateRoute)
 app.get(router.routes.dashboard, router.dashboard)
-/* [-] */ app.get(router.routes.search, router.search)
+app.get(router.routes.search, router.search)
 app.post(router.routes.linkAdd, router.linkAdd)
-/* [-] */ app.post(router.routes.linkEdit, router.linkEdit)
-/* [-] */ app.post(router.routes.linkDelete, router.linkDelete)
+app.post(router.routes.linkEdit, router.linkEdit)
+app.delete(router.routes.linkDelete, router.linkDelete)
 app.notFound((ctx) => ctx.redirect(router.routes.main))
 
 export default {

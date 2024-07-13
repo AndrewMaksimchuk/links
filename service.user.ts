@@ -54,4 +54,9 @@ export class ServiceUser {
     public findByPasswordHash(passwordHash: string) {
         return this.database.getUserByPasswordHash(passwordHash);
     }
+
+    public getUserData<T extends keyof UserDatabase>(token: string, field: T):UserDatabase[T] | null {
+        const user = this.database.getUserByPasswordHash(token)
+        return null === user ? user : user[field];
+    }
 }

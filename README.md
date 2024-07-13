@@ -2,6 +2,14 @@
 
 - [https://ogp.me/](The Open Graph protocol)
 
+
+## Resources
+
+- https://picocss.com/docs
+- https://htmx.org/reference/#attributes
+- https://alpinejs.dev/start-here
+
+
 ## Example open graph protocol
 
 ```
