@@ -2,7 +2,7 @@ import { type FC } from 'hono/jsx'
 
 export const Index: FC = () => {
     return (
-        <form hx-post="/login" hx-target="this" hx-swap="innerHTML" hx-push-url="true" id="form-entrance"
+        <form hx-post="/login" hx-target="this" hx-swap="outerHTML" hx-push-url="true" id="form-entrance"
             class="form-entrance">
             <fieldset>
                 <legend style="font-size: 2rem; margin: auto;">Registration | Entrance</legend>
