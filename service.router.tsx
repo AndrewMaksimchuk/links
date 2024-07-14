@@ -1,4 +1,5 @@
 import type { Context, Next } from "hono"
+import { getCookie, setCookie } from 'hono/cookie'
 import type { ServiceAuth } from "./service.auth"
 import type { ServiceUser, User } from "./service.user"
 import type { ServiceLink, Link } from "./service.link"
@@ -19,6 +20,7 @@ export const routes = {
   linkAdd: '/link-add',
   linkDelete: '/link-delete',
   linkEdit: '/link-edit',
+  linkChangeView: '/link-change-view',
 }
 
 
@@ -105,17 +107,38 @@ export class Router {
   }
 
 
-  public dashboard = async (ctx: Context) => {
-    Logger.log('Function: dashboard', __filename)
+  private getUserLinks = async (ctx: Context) => {
+    Logger.log('Function: getUserLinks', __filename)
     const token = await this.serviceAuth.getLoginToken(ctx)
     const userId = 'string' === typeof token ? this.serviceUser.getUserData(token, "user_id") : null
-    const userLinks = 'number' === typeof userId ? this.serviceLink.getLinks(userId) : []
+    return 'number' === typeof userId ? this.serviceLink.getLinks(userId) : []
+  }
+
+  private selectLinkView = (isCard: boolean, userLinks: Link[]) => {
+    Logger.log('Function: selectLinkView', __filename)
+    return  isCard ? <Links links={userLinks}></Links> : <Links links={userLinks} view="table"></Links>;
+  }
+
+  public dashboard = async (ctx: Context) => {
+    Logger.log('Function: dashboard', __filename)
+    const userLinks = await this.getUserLinks(ctx)
+    const linkViewState = getCookie(ctx, 'linkView') ?? ''
+    const View = this.selectLinkView(!linkViewState, userLinks)
     return ctx.html(
       <Layout>
-        <Dashboard>
-          <Links links={ userLinks }></Links>
+        <Dashboard linkViewState={linkViewState}>
+          {View}
         </Dashboard>
       </Layout>);
+  }
+
+  public linkChangeView = async (ctx: Context) => {
+    Logger.log('Function: linkChangeView', __filename)
+    const body = await ctx.req.parseBody<{ viewState?: "on" }>()
+    setCookie(ctx, 'linkView', body.viewState ?? '', { httpOnly: true, secure: true })
+    const userLinks = await this.getUserLinks(ctx)
+    const View = this.selectLinkView(!body.viewState, userLinks)
+    return ctx.html(View);
   }
 
   public search(ctx: Context) {
@@ -140,14 +163,14 @@ export class Router {
 
     const notificationid = Date.now()
     ctx.header('HX-Trigger', JSON.stringify({ notifyClose: { notificationid } }))
-    return ctx.html(<Notification status="success" body="Add new link!" notificationid={ notificationid }></Notification>)
+    return ctx.html(<Notification status="success" body="Add new link!" notificationid={notificationid}></Notification>)
   }
 
   public linkEdit(ctx: Context) {
     Logger.log('Function: linkEdit', __filename)
     return ctx.html('Edit link!');
   }
-  
+
   public linkDelete = async (ctx: Context) => {
     Logger.log('Function: linkDelete', __filename)
     const body = await ctx.req.parseBody<Stringify<Pick<Link, "link_id">>>()

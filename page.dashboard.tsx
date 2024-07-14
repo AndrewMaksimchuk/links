@@ -1,7 +1,8 @@
-import { Fragment, type FC, type PropsWithChildren } from 'hono/jsx'
+import { Fragment, createContext, useContext, type FC, type PropsWithChildren } from 'hono/jsx'
 import type { User } from "./service.user"
 import { routes } from "./service.router"
 
+const ViewContext = createContext('')
 
 const Add = () => {
     return (
@@ -47,11 +48,33 @@ const Search = () => {
     );
 }
 
+const Views = () => {
+    const isChecked = Boolean(useContext(ViewContext))
+    return (
+        <fieldset>
+            <legend>Select view</legend>
+            <label>
+                <span>Card </span>
+                <input
+                    name="viewState"
+                    type="checkbox"
+                    role="switch"
+                    style="margin-inline: .5em;"
+                    checked={isChecked}
+                    hx-post={routes.linkChangeView} hx-target="main" hx-swap="innerHTML"
+                />
+                <span>Table</span>
+            </label>
+        </fieldset>
+    );
+}
+
 const Nav = () => {
     return (
         <nav style="display: grid; grid-template-columns: 1fr;">
             <Add></Add>
             <Search></Search>
+            <Views></Views>
         </nav>
     );
 }
@@ -63,6 +86,7 @@ const Logout = () => {
         </form>
     );
 }
+
 const Header: FC<{ name: string | undefined }> = (props) => {
     return (
         <header>
@@ -75,14 +99,14 @@ const Header: FC<{ name: string | undefined }> = (props) => {
     );
 }
 
-export const Dashboard = (props: PropsWithChildren<{ user?: Pick<User, 'name'> }>) => {
+export const Dashboard = (props: PropsWithChildren<{ user?: Pick<User, 'name'>, linkViewState: string }>) => {
     return (
         <Fragment>
-            <Header name={props.user?.name}></Header>
+            <ViewContext.Provider value={props.linkViewState}>
+                <Header name={props.user?.name}></Header>
+            </ViewContext.Provider>
             <main>
-                <section class="grid" style="grid-template-columns: repeat(4, 1fr);">
-                    { props.children }
-                </section>
+                {props.children}
             </main>
         </Fragment>
     )

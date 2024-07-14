@@ -26,6 +26,7 @@ app.get(router.routes.search, router.search)
 app.post(router.routes.linkAdd, router.linkAdd)
 app.post(router.routes.linkEdit, router.linkEdit)
 app.delete(router.routes.linkDelete, router.linkDelete)
+app.post(router.routes.linkChangeView, router.linkChangeView)
 app.notFound((ctx) => ctx.redirect(router.routes.main))
 
 export default {
