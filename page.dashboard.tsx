@@ -14,6 +14,8 @@ const Add = () => {
                 id="link-add"
                 placeholder='https://picocss.com/docs/forms'
                 aria-describedby='link-add-aria-description'
+                required
+                minlength={12}
             />
             <small
                 id='link-add-aria-description'>
