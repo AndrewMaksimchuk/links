@@ -83,10 +83,14 @@ const Nav = () => {
 
 const Logout = () => {
     return (
-        <form action={routes.logout} method="post">
-            <button type="submit" className="outline">Logout</button>
+        <form action={routes.logout} method="post" style="margin: 0;">
+            <button type="submit" className="outline" style="margin: 0;">Logout</button>
         </form>
     );
+}
+
+const Settings = () => {
+    return (<button class="outline secondary">Settings</button>);
 }
 
 const Header: FC<{ name: string | undefined }> = (props) => {
@@ -94,7 +98,10 @@ const Header: FC<{ name: string | undefined }> = (props) => {
         <header>
             <div style="display: flex; justify-content: space-between;">
                 {props.name ? <h1>Hello, {props.name}!</h1> : <h1>Hello, my friend!</h1>}
-                <Logout></Logout>
+                <div style="display: flex; gap: 1rem;">
+                    <Settings></Settings>
+                    <Logout></Logout>
+                </div>
             </div>
             <Nav></Nav>
         </header>
