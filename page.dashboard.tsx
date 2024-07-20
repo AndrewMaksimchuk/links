@@ -26,30 +26,34 @@ const SelectTags = () => {
 
 const Add = () => {
     return (
-        <form hx-post={routes.linkAdd} hx-target="#notification" hx-swap="afterbegin">
-            <label for='link-add'>New link</label>
-            <input
-                type="text"
-                name="url"
-                id="link-add"
-                placeholder='https://picocss.com/docs/forms'
-                aria-describedby='link-add-aria-description'
-                required
-                minlength={12}
-            />
-            <small
-                id='link-add-aria-description'>
-                Write ot paste link with https protocol
-            </small>
-            <SelectTags></SelectTags>
-            <input
-                type="number"
-                name="created_at"
-                id="linkAddCreatedAt"
-                value="0"
-                hidden
-            />
-            <button type="submit" onmouseenter="linkAddCreatedAt.value = Date.now()">Add new link</button>
+        <form 
+            hx-post={routes.linkAdd} 
+            hx-target="#notification" 
+            hx-swap="afterbegin" 
+            hx-on--after-request="this.reset()"> 
+                <label for='link-add'>New link</label>
+                <input
+                    type="text"
+                    name="url"
+                    id="link-add"
+                    placeholder='https://picocss.com/docs/forms'
+                    aria-describedby='link-add-aria-description'
+                    required
+                    minlength={12}
+                />
+                <small
+                    id='link-add-aria-description'>
+                    Write ot paste link with https protocol
+                </small>
+                <SelectTags></SelectTags>
+                <input
+                    type="number"
+                    name="created_at"
+                    id="linkAddCreatedAt"
+                    value="0"
+                    hidden
+                />
+                <button type="submit" onmouseenter="linkAddCreatedAt.value = Date.now()">Add new link</button>
         </form>
     );
 }
