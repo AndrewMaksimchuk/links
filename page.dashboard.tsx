@@ -29,8 +29,8 @@ export const Add = () => {
         <form
             id="linkAddForm"
             hx-post={routes.linkAdd}
-            hx-target="#notification"
-            hx-swap="afterbegin"
+            hx-target="main"
+            hx-swap="innerHTML"
             hx-on--after-request="this.reset()">
             <label for='link-add'>New link</label>
             <input

@@ -14,17 +14,19 @@ const statusStyle: Record<Status, string> = {
 }
 
 const setStatusStyle = (status: Status) => {
-    return { 
+    return {
         borderBottom: "solid " + statusStyle[status],
-     };
+    };
 }
 
 export const Notification: FC<{ status: Status, body: string, header?: string, notificationid?: number }> = (props) => {
     return (
-        <div style={NotificationStyle} data-notificationId={props.notificationid}>
-            <h2 style={setStatusStyle(props.status)}>{ props.header }</h2>
-            <p>{ props.body }</p>
-            <button onclick="this.parentElement.remove()">Close</button>
+        <div id="notification" hx-swap-oob="afterbegin">
+            <div style={NotificationStyle} data-notificationId={props.notificationid}>
+                <h2 style={setStatusStyle(props.status)}>{props.header}</h2>
+                <p>{props.body}</p>
+                <button onclick="this.parentElement.remove()">Close</button>
+            </div>
         </div>
     );
 }

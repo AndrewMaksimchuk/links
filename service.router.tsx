@@ -12,6 +12,7 @@ import { Index } from "./page.index"
 import { Notification } from "./component.notification"
 import { Links } from "./component.links"
 import { TagNotification } from "./component.tag-notification"
+import { Fragment } from "hono/jsx"
 
 export const routes = {
   main: '/',
@@ -173,14 +174,29 @@ export class Router {
       return ctx.html(<Notification status="error" body="Can`t get user!"></Notification>)
     }
 
-    if (null === this.serviceLink.setNewLink(formBody, user.user_id)) {
+    const isNewLinkCreate = this.serviceLink.setNewLink(formBody, user.user_id)
+    const userLinks = "number" === typeof user.user_id ? await this.getUserLinks(user.user_id) : []
+    const linkViewState = getCookie(ctx, 'linkView') ?? ''
+    const View = this.selectLinkView(!linkViewState, userLinks)
+
+    if (null === isNewLinkCreate) {
       Logger.error('Function: linkAdd', __filename, 'new link is null')
-      return ctx.html(<Notification status="warn" body="Can`t create new link!"></Notification>)
+      return ctx.html(
+        <Fragment>
+          {View}
+          <Notification status="warn" body="Can`t create new link!"></Notification>
+        </Fragment>
+      );
     }
 
     const notificationid = Date.now()
     ctx.header('HX-Trigger', JSON.stringify({ notifyClose: { notificationid } }))
-    return ctx.html(<Notification status="success" body="Add new link!" notificationid={notificationid}></Notification>)
+    return ctx.html(
+      <Fragment>
+        {View}
+        <Notification status="success" body="Add new link!" notificationid={notificationid}></Notification>
+      </Fragment>
+    );
   }
 
   public linkEdit(ctx: Context) {
