@@ -24,9 +24,10 @@ export class ServiceLink {
     }
 
 
-    public setNewLink(link: Prettify<Stringify<Pick<Link, "url" | "created_at">>>, userId: number) {
+    public setNewLink(link: Prettify<Stringify<Pick<Link, "url" | "created_at"> & { tags: string }>>, userId: number) {
         Logger.log('Function: setNewLink', __filename)
-        return this.database.createLink({ user_id: userId, url: link.url, created_at: Number(link.created_at) || 0 });
+        const tags = "NaN" === link.tags ? null : link.tags
+        return this.database.createLink({ user_id: userId, url: link.url, created_at: Number(link.created_at) || 0, tags });
     }
 
 

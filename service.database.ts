@@ -30,6 +30,14 @@ export type UserDatabase = {
 }
 
 
+export interface TagDatabase {
+    tag_id: number
+    user_id: number
+    name: string
+    color: string
+}
+
+
 export class ServiceDatabase {
     static #instance: ServiceDatabase
     private database: Database
@@ -37,6 +45,7 @@ export class ServiceDatabase {
     private tables = {
         users: 'users',
         links: 'links',
+        tags: 'tags',
     }
 
     private constructor() {
@@ -44,6 +53,7 @@ export class ServiceDatabase {
         this.database = new Database("database.sqlite")
         this.createTableUsers()
         this.createTableLinks()
+        this.createTableTag()
     }
 
     private createTableUsers() {
@@ -81,6 +91,22 @@ export class ServiceDatabase {
         this.database.query(sqlQuery).run()
     }
 
+    private createTableTag() {
+        Logger.log('Function: createTableTag', __filename)
+        const sqlQuery = `
+            CREATE TABLE IF NOT EXISTS ${this.tables.tags} (
+            tag_id INTEGER PRIMARY KEY,
+            user_id INTEGER NOT NULL,
+            name TEXT NOT NULL,
+            color TEXT NOT NULL,
+            FOREIGN KEY (user_id)
+                REFERENCES users (user_id)
+                    ON UPDATE CASCADE
+                    ON DELETE CASCADE
+        );`
+        this.database.query(sqlQuery).run()
+    }
+
 
     public static get instance(): ServiceDatabase {
         Logger.log('Function: instance', __filename)
@@ -100,7 +126,7 @@ export class ServiceDatabase {
         });
     }
 
-    
+
     public createUser(data: Omit<UserDatabase, "user_id">) {
         Logger.log('Function: createUser', __filename)
         const sqlQuery = `INSERT INTO users (telephone, password) VALUES (?, ?);`
@@ -149,27 +175,41 @@ export class ServiceDatabase {
     }
 
 
-    // public createLink(link: Omit<LinkDatabase, "link_id">) {
-    //     Logger.log('Function: createLink', __filename)
-    //     const sqlQuery = `INSERT INTO ${this.tables.links} (user_id, url, created_at, title, image, audio, description, locale, site_name, video, tags) 
-    //                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`
-    //     this.database.run(sqlQuery, [link.user_id, link.url, link.created_at, link.title, link.image, link.audio, link.description, link.locale, link.site_name, link.video, JSON.stringify(link.tags)])
-    //     return this.getLink(link.url);
-    // }
-
-    public createLink(link: Pick<LinkDatabase, "user_id" | "url" | "created_at">) {
+    public createLink(link: Pick<LinkDatabase, "user_id" | "url" | "created_at" | "tags">) {
         Logger.log('Function: createLink', __filename)
-        const sqlQuery = `INSERT INTO ${this.tables.links} (user_id, url, created_at) 
-                          VALUES (?, ?, ?);`
-        this.database.run(sqlQuery, [link.user_id, link.url, link.created_at])
+        const sqlQuery = `INSERT INTO ${this.tables.links} (user_id, url, created_at, tags) 
+                          VALUES (?, ?, ?, ?);`
+        this.database.run(sqlQuery, [link.user_id, link.url, link.created_at, link.tags])
         return this.getLink(link.url);
     }
 
-    
+
     public deleteLink(linkId: number) {
         Logger.log('Function: deleteLink', __filename)
         const sqlQuery = `DELETE FROM ${this.tables.links} WHERE link_id = ?;`
         this.database.run(sqlQuery, [linkId])
         return !Boolean(this.getLinkById(linkId));
+    }
+
+
+    public createTag(tag: Omit<TagDatabase, "tag_id" | "user_id">, userId: number) {
+        Logger.log('Function: createTag', __filename)
+        const sqlQuery = `INSERT INTO ${this.tables.tags} (user_id, name, color) VALUES (?, ?, ?);`
+        this.database.run(sqlQuery, [userId, tag.name, tag.color])
+    }
+
+
+    public getTags(userId: number) {
+        Logger.log('Function: getTags', __filename)
+        const sqlQuery = `SELECT * FROM ${this.tables.tags} WHERE user_id = ?;`
+        return this.database.query<TagDatabase, number>(sqlQuery).all(userId);
+    }
+
+
+    public deleteTag(tag_id: number) {
+        Logger.log('Function: deleteTag', __filename)
+        const sqlQuery = `DELETE FROM ${this.tables.tags} WHERE tag_id = ?;`
+        this.database.run(sqlQuery, [tag_id])
+        return tag_id;
     }
 }

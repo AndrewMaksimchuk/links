@@ -1,8 +1,28 @@
 import { Fragment, createContext, useContext, type FC, type PropsWithChildren } from 'hono/jsx'
 import type { User } from "./service.user"
+import type { Tag } from './service.tag'
 import { routes } from "./service.router"
+import { TagNotification } from './component.tag-notification'
+
 
 const ViewContext = createContext('')
+const TagsContext = createContext<Tag[]>([])
+
+
+const SelectTags = () => {
+    const tags = useContext(TagsContext)
+    const View = tags.length ? (
+        <Fragment>
+            <label for="tags">Select tags</label>
+            <select id="tags" name="tags" required aria-label="Select">
+                <option disabled selected value={NaN}>Select one from list:</option>
+                {tags.map((tag) => <option value={tag.tag_id}>{tag.name}</option>)}
+            </select>
+        </Fragment>
+    ) : <Fragment></Fragment>
+    return View;
+}
+
 
 const Add = () => {
     return (
@@ -21,6 +41,7 @@ const Add = () => {
                 id='link-add-aria-description'>
                 Write ot paste link with https protocol
             </small>
+            <SelectTags></SelectTags>
             <input
                 type="number"
                 name="created_at"
@@ -89,9 +110,54 @@ const Logout = () => {
     );
 }
 
+
+const onClickToggleSettingsView = "settingsView.toggleAttribute('open'); document.body.classList.toggle('modal-is-open')"
+
+
 const Settings = () => {
-    return (<button class="outline secondary">Settings</button>);
+    return (<button class="outline secondary" onclick={onClickToggleSettingsView}>Settings</button>);
 }
+
+
+const SettingsTags = () => {
+    const tags = useContext(TagsContext)
+
+    return (
+        <div>
+            <form hx-post={routes.tagCreate} hx-target="#createTagResponse" hx-swap="afterbegin" hx-on--after-request="this.reset()">
+                <fieldset>
+                    <legend style="text-align: center; width: 100%; font-weight: bold;">Create new tag</legend>
+                    <label for="inputTagName">Write tag name</label>
+                    <input type="text" name="name" id="inputTagName" placeholder="web" inputmode="text" minlength={3} required autofocus />
+                    <label for="inputTagColor">Choose a color</label>
+                    <input type="color" name="color" id="inputTagColor" required />
+                    <input type="submit" />
+                </fieldset>
+            </form>
+            <p id="createTagResponse" style="display: flex; flex-wrap: wrap; gap: 1rem; min-height: 2rem;">
+                {tags.map((tag) => <TagNotification name={tag.name} color={tag.color} tagId={tag.tag_id} />)}
+            </p>
+        </div>
+    );
+}
+
+
+export const SettingsModal = () => {
+    return (
+        <dialog id="settingsView">
+            <article>
+                <header>
+                    <h2>Settings</h2>
+                </header>
+                <SettingsTags />
+                <footer>
+                    <button class="outline" onclick={onClickToggleSettingsView}>Close</button>
+                </footer>
+            </article>
+        </dialog>
+    );
+}
+
 
 const Header: FC<{ name: string | undefined }> = (props) => {
     return (
@@ -108,11 +174,14 @@ const Header: FC<{ name: string | undefined }> = (props) => {
     );
 }
 
-export const Dashboard = (props: PropsWithChildren<{ user?: Pick<User, 'name'>, linkViewState: string }>) => {
+export const Dashboard = (props: PropsWithChildren<{ user?: Pick<User, 'name'>, linkViewState: string, tags: Tag[] }>) => {
     return (
         <Fragment>
             <ViewContext.Provider value={props.linkViewState}>
-                <Header name={props.user?.name}></Header>
+                <TagsContext.Provider value={props.tags}>
+                    <Header name={props.user?.name}></Header>
+                    <SettingsModal />
+                </TagsContext.Provider>
             </ViewContext.Provider>
             <main>
                 {props.children}

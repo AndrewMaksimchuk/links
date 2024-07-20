@@ -141,7 +141,6 @@ const LinkItemTable = (props: PropsWithChildren) => {
                     <th scope="col">Url</th>
                     <th scope="col">Date</th>
                     <th scope="col">Tags</th>
-                    {/* <th scope="col"></th> */}
                     <th scope="col">Control</th>
                 </tr>
             </thead>

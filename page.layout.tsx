@@ -1,7 +1,8 @@
 import type { FC } from 'hono/jsx'
 import { NotificationContainer } from './component.notification-container';
 
-export const Layout: FC = ({children}) => {
+
+export const Layout: FC = ({ children }) => {
     return (
         <html lang="en">
 
@@ -11,14 +12,15 @@ export const Layout: FC = ({children}) => {
                 <link rel="icon" type="image/svg" href="favicon.svg"></link>
                 <link rel="stylesheet" href="pico.yellow.min.css"></link>
                 <script src="htmx.min.js" defer></script>
+                <script src="alpine.min.js" defer></script>
                 <title>Links</title>
             </head>
 
             <body class="container">
-                { children }
+                {children}
                 <footer></footer>
             </body>
-            <NotificationContainer/>
+            <NotificationContainer />
         </html>
     );
 }

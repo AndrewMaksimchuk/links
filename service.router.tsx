@@ -1,15 +1,17 @@
 import type { Context, Next } from "hono"
-import { getCookie, setCookie } from 'hono/cookie'
 import type { ServiceAuth } from "./service.auth"
 import type { ServiceUser, User } from "./service.user"
 import type { ServiceLink, Link } from "./service.link"
 import type { Stringify, Prettify } from "./utility.types"
+import { getCookie, setCookie } from 'hono/cookie'
 import { Dashboard } from './page.dashboard'
+import { ServiceTag, type Tag } from "./service.tag"
 import { Logger } from "./service.logger"
 import { Layout } from "./page.layout"
 import { Index } from "./page.index"
 import { Notification } from "./component.notification"
 import { Links } from "./component.links"
+import { TagNotification } from "./component.tag-notification"
 
 export const routes = {
   main: '/',
@@ -21,6 +23,8 @@ export const routes = {
   linkDelete: '/link-delete',
   linkEdit: '/link-edit',
   linkChangeView: '/link-change-view',
+  tagCreate: 'tag-create',
+  tagDelete: 'tag-delete',
 }
 
 
@@ -28,12 +32,14 @@ export class Router {
   private serviceAuth: ServiceAuth
   private serviceUser: ServiceUser
   private serviceLink: ServiceLink
+  private serviceTag: ServiceTag
 
 
-  constructor(ServiceUser: ServiceUser, ServiceAuth: ServiceAuth, ServiceLink: ServiceLink) {
+  constructor(ServiceUser: ServiceUser, ServiceAuth: ServiceAuth, ServiceLink: ServiceLink, ServiceTag: ServiceTag) {
     this.serviceUser = ServiceUser
     this.serviceAuth = ServiceAuth
     this.serviceLink = ServiceLink
+    this.serviceTag = ServiceTag
   }
 
 
@@ -107,26 +113,34 @@ export class Router {
   }
 
 
-  private getUserLinks = async (ctx: Context) => {
-    Logger.log('Function: getUserLinks', __filename)
+  private getUserId = async (ctx: Context) => {
+    Logger.log('Function: getUserId', __filename)
     const token = await this.serviceAuth.getLoginToken(ctx)
-    const userId = 'string' === typeof token ? this.serviceUser.getUserData(token, "user_id") : null
+    return 'string' === typeof token ? this.serviceUser.getUserData(token, "user_id") : null;
+  }
+
+
+  private getUserLinks = async (userId: number) => {
+    Logger.log('Function: getUserLinks', __filename)
     return 'number' === typeof userId ? this.serviceLink.getLinks(userId) : []
   }
 
+
   private selectLinkView = (isCard: boolean, userLinks: Link[]) => {
     Logger.log('Function: selectLinkView', __filename)
-    return  isCard ? <Links links={userLinks}></Links> : <Links links={userLinks} view="table"></Links>;
+    return isCard ? <Links links={userLinks}></Links> : <Links links={userLinks} view="table"></Links>;
   }
 
   public dashboard = async (ctx: Context) => {
     Logger.log('Function: dashboard', __filename)
-    const userLinks = await this.getUserLinks(ctx)
+    const userId = await this.getUserId(ctx)
+    const userLinks = "number" === typeof userId ? await this.getUserLinks(userId) : []
     const linkViewState = getCookie(ctx, 'linkView') ?? ''
     const View = this.selectLinkView(!linkViewState, userLinks)
+    const tags = "number" === typeof userId ? this.serviceTag.getTags(userId) : []
     return ctx.html(
       <Layout>
-        <Dashboard linkViewState={linkViewState}>
+        <Dashboard linkViewState={linkViewState} tags={tags}>
           {View}
         </Dashboard>
       </Layout>);
@@ -136,7 +150,8 @@ export class Router {
     Logger.log('Function: linkChangeView', __filename)
     const body = await ctx.req.parseBody<{ viewState?: "on" }>()
     setCookie(ctx, 'linkView', body.viewState ?? '', { httpOnly: true, secure: true })
-    const userLinks = await this.getUserLinks(ctx)
+    const userId = await this.getUserId(ctx)
+    const userLinks = "number" === typeof userId ? await this.getUserLinks(userId) : []
     const View = this.selectLinkView(!body.viewState, userLinks)
     return ctx.html(View);
   }
@@ -148,7 +163,8 @@ export class Router {
 
   public linkAdd = async (ctx: Context) => {
     Logger.log('Function: linkAdd', __filename)
-    const formBody = await ctx.req.parseBody<Prettify<Stringify<Pick<Link, "url" | "created_at">>>>()
+    type LinkAddBody = Prettify<Stringify<Pick<Link, "url" | "created_at"> & { tags: string }>>
+    const formBody = await ctx.req.parseBody<LinkAddBody>()
 
     const user = await this.getUser(ctx)
     if (null === user) {
@@ -182,5 +198,28 @@ export class Router {
     }
 
     return ctx.html(<Notification status="warn" body="Can`t delete link!"></Notification>);
+  }
+
+
+  public tagCreate = async (ctx: Context) => {
+    Logger.log('Function: tagCreate', __filename)
+    const body = await ctx.req.parseBody<Omit<Tag, "tag_id">>()
+    const userId = await this.getUserId(ctx)
+
+    if(null == userId) {
+      return ctx.html(<TagNotification text="Can`t create tag!"/>);
+    }
+
+    this.serviceTag.createTag(body, userId)
+    const tag = this.serviceTag.getTags(userId).at(-1);
+    return tag ? ctx.html(<TagNotification tagId={tag.tag_id} name={tag?.name} color={tag?.color}/>) : ctx.html(<TagNotification text="Can`t create tag!"/>);
+  }
+
+
+  public tagDelete = async (ctx: Context) => {
+    Logger.log('Function: tagDelete', __filename)
+    const body = await ctx.req.parseBody<{tagId: string}>()
+    this.serviceTag.deleteTag(Number(body.tagId))
+    return ctx.html(<TagNotification text="Tag deleted!"/>);
   }
 }
