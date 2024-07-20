@@ -6,7 +6,7 @@ import { TagNotification } from './component.tag-notification'
 
 
 const ViewContext = createContext('')
-const TagsContext = createContext<Tag[]>([])
+export const TagsContext = createContext<Tag[]>([])
 
 
 const SelectTags = () => {
@@ -24,36 +24,37 @@ const SelectTags = () => {
 }
 
 
-const Add = () => {
+export const Add = () => {
     return (
-        <form 
-            hx-post={routes.linkAdd} 
-            hx-target="#notification" 
-            hx-swap="afterbegin" 
-            hx-on--after-request="this.reset()"> 
-                <label for='link-add'>New link</label>
-                <input
-                    type="text"
-                    name="url"
-                    id="link-add"
-                    placeholder='https://picocss.com/docs/forms'
-                    aria-describedby='link-add-aria-description'
-                    required
-                    minlength={12}
-                />
-                <small
-                    id='link-add-aria-description'>
-                    Write ot paste link with https protocol
-                </small>
-                <SelectTags></SelectTags>
-                <input
-                    type="number"
-                    name="created_at"
-                    id="linkAddCreatedAt"
-                    value="0"
-                    hidden
-                />
-                <button type="submit" onmouseenter="linkAddCreatedAt.value = Date.now()">Add new link</button>
+        <form
+            id="linkAddForm"
+            hx-post={routes.linkAdd}
+            hx-target="#notification"
+            hx-swap="afterbegin"
+            hx-on--after-request="this.reset()">
+            <label for='link-add'>New link</label>
+            <input
+                type="text"
+                name="url"
+                id="link-add"
+                placeholder='https://picocss.com/docs/forms'
+                aria-describedby='link-add-aria-description'
+                required
+                minlength={12}
+            />
+            <small
+                id='link-add-aria-description'>
+                Write ot paste link with https protocol
+            </small>
+            <SelectTags></SelectTags>
+            <input
+                type="number"
+                name="created_at"
+                id="linkAddCreatedAt"
+                value="0"
+                hidden
+            />
+            <button type="submit" onmouseenter="linkAddCreatedAt.value = Date.now()">Add new link</button>
         </form>
     );
 }
@@ -135,7 +136,7 @@ const SettingsTags = () => {
                     <input type="text" name="name" id="inputTagName" placeholder="web" inputmode="text" minlength={3} required autofocus />
                     <label for="inputTagColor">Choose a color</label>
                     <input type="color" name="color" id="inputTagColor" required />
-                    <input type="submit" />
+                    <input type="submit" value="Create" />
                 </fieldset>
             </form>
             <p id="createTagResponse" style="display: flex; flex-wrap: wrap; gap: 1rem; min-height: 2rem;">
@@ -155,7 +156,15 @@ export const SettingsModal = () => {
                 </header>
                 <SettingsTags />
                 <footer>
-                    <button class="outline" onclick={onClickToggleSettingsView}>Close</button>
+                    <button
+                        class="outline"
+                        onclick={onClickToggleSettingsView}
+                        hx-post={routes.linkAddFormUpdate}
+                        hx-target="#linkAddForm"
+                        hx-swap="outerHTML"
+                    >
+                        Close
+                    </button>
                 </footer>
             </article>
         </dialog>

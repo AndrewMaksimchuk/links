@@ -4,7 +4,7 @@ import type { ServiceUser, User } from "./service.user"
 import type { ServiceLink, Link } from "./service.link"
 import type { Stringify, Prettify } from "./utility.types"
 import { getCookie, setCookie } from 'hono/cookie'
-import { Dashboard } from './page.dashboard'
+import { Add, Dashboard, TagsContext } from './page.dashboard'
 import { ServiceTag, type Tag } from "./service.tag"
 import { Logger } from "./service.logger"
 import { Layout } from "./page.layout"
@@ -23,6 +23,7 @@ export const routes = {
   linkDelete: '/link-delete',
   linkEdit: '/link-edit',
   linkChangeView: '/link-change-view',
+  linkAddFormUpdate: '/link-add-form-update',
   tagCreate: 'tag-create',
   tagDelete: 'tag-delete',
 }
@@ -134,7 +135,7 @@ export class Router {
   public dashboard = async (ctx: Context) => {
     Logger.log('Function: dashboard', __filename)
     const userId = await this.getUserId(ctx)
-    const userLinks = "number" === typeof userId ? await this.getUserLinks(userId) : [] //TODO
+    const userLinks = "number" === typeof userId ? await this.getUserLinks(userId) : []
     const linkViewState = getCookie(ctx, 'linkView') ?? ''
     const View = this.selectLinkView(!linkViewState, userLinks)
     const tags = "number" === typeof userId ? this.serviceTag.getTags(userId) : []
@@ -206,20 +207,35 @@ export class Router {
     const body = await ctx.req.parseBody<Omit<Tag, "tag_id">>()
     const userId = await this.getUserId(ctx)
 
-    if(null == userId) {
-      return ctx.html(<TagNotification text="Can`t create tag!"/>);
+    if (null == userId) {
+      return ctx.html(<TagNotification text="Can`t create tag!" />);
     }
 
     this.serviceTag.createTag(body, userId)
-    const tag = this.serviceTag.getTags(userId).at(-1);
-    return tag ? ctx.html(<TagNotification tagId={tag.tag_id} name={tag?.name} color={tag?.color}/>) : ctx.html(<TagNotification text="Can`t create tag!"/>);
+    const tag = this.serviceTag.getTags(userId).at(-1)
+    return tag ? ctx.html(<TagNotification tagId={tag.tag_id} name={tag?.name} color={tag?.color} />) : ctx.html(<TagNotification text="Can`t create tag!" />);
   }
 
 
   public tagDelete = async (ctx: Context) => {
     Logger.log('Function: tagDelete', __filename)
-    const body = await ctx.req.parseBody<{tagId: string}>()
+    const body = await ctx.req.parseBody<{ tagId: string }>()
     this.serviceTag.deleteTag(Number(body.tagId))
-    return ctx.html(<TagNotification text="Tag deleted!"/>);
+    return ctx.html(<TagNotification text="Tag deleted!" />);
   }
+
+
+  public linkAddFormUpdate = async (ctx: Context) => {
+    Logger.log('Function: linkAddFormUpdate', __filename)
+    const userId = await this.getUserId(ctx)
+
+    if (null === userId) {
+      return ctx.html(<Add />);
+    }
+
+    const tags = this.serviceTag.getTags(userId)
+    TagsContext.values = [tags]
+    return ctx.html(<Add />);
+  }
+
 }
