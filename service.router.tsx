@@ -134,7 +134,7 @@ export class Router {
   public dashboard = async (ctx: Context) => {
     Logger.log('Function: dashboard', __filename)
     const userId = await this.getUserId(ctx)
-    const userLinks = "number" === typeof userId ? await this.getUserLinks(userId) : []
+    const userLinks = "number" === typeof userId ? await this.getUserLinks(userId) : [] //TODO
     const linkViewState = getCookie(ctx, 'linkView') ?? ''
     const View = this.selectLinkView(!linkViewState, userLinks)
     const tags = "number" === typeof userId ? this.serviceTag.getTags(userId) : []

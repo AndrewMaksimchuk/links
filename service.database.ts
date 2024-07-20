@@ -1,4 +1,4 @@
-import type { Nullable, JSONstring } from "./utility.types"
+import type { Nullable, JSONstring, Prettify } from "./utility.types"
 import { Database } from "bun:sqlite"
 import { Logger } from "./service.logger"
 
@@ -169,8 +169,8 @@ export class ServiceDatabase {
 
     public getLinksUser(userId: number) {
         Logger.log('Function: getLinksUser', __filename)
-        const sqlQuery = `SELECT * FROM ${this.tables.links} WHERE user_id = $userId;`
-        const query = this.database.query<LinkDatabase, { $userId: number }>(sqlQuery)
+        const sqlQuery = `SELECT * FROM ${this.tables.links} INNER JOIN ${this.tables.tags} ON ${this.tables.tags}.tag_id = ${this.tables.links}.tags WHERE ${this.tables.links}.user_id = $userId;`
+        const query = this.database.query<Prettify<LinkDatabase & TagDatabase>, { $userId: number }>(sqlQuery)
         return query.all({ $userId: userId });
     }
 

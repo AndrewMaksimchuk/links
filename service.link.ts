@@ -1,11 +1,9 @@
-import type { LinkDatabase, ServiceDatabase } from "./service.database"
+import type { LinkDatabase, ServiceDatabase, TagDatabase } from "./service.database"
 import type { Prettify, Stringify } from "./utility.types"
 import { Logger } from "./service.logger"
 
 
-export interface Link extends Prettify<Omit<LinkDatabase, "user_id" | "tags">> {
-    tags: string[] | null
-}
+export type Link = Prettify<LinkDatabase & TagDatabase>
 
 
 export class ServiceLink {
@@ -18,12 +16,6 @@ export class ServiceLink {
     }
 
 
-    private convertionLinkDatabaseToLink(link: LinkDatabase): Link {
-        const tags = 'string' === typeof link.tags ? JSON.parse(link.tags) as string[] : null
-        return { ...link, tags };
-    }
-
-
     public setNewLink(link: Prettify<Stringify<Pick<Link, "url" | "created_at"> & { tags: string }>>, userId: number) {
         Logger.log('Function: setNewLink', __filename)
         const tags = "NaN" === link.tags ? null : link.tags
@@ -33,7 +25,7 @@ export class ServiceLink {
 
     public getLinks(userId: number) {
         Logger.log('Function: getLinks', __filename)
-        return this.database.getLinksUser(userId).map(this.convertionLinkDatabaseToLink);
+        return this.database.getLinksUser(userId);
     }
 
 

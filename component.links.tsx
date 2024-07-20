@@ -7,35 +7,18 @@ import { routes } from './service.router'
 type LinkItemProps = Partial<Link>
 
 
-const TagStyle = {
-    "--pico-color": "var(--pico-switch-color)",
-    border: 'var(--pico-border-width) solid var(--pico-border-color)',
-    borderRadius: '1.25em',
-    backgroundColor: 'var(--pico-background-color)',
-    lineHeight: '1.25em',
-    padding: "0.125rem 0.5rem",
-}
-
-
-const Tag: FC<{ name: string }> = (props) => {
+const Tag: FC<{ name: string, color?: string }> = (props) => {
+    const TagStyle = {
+        "--pico-color": "var(--pico-switch-color)",
+        color: props.color ? props.color : 'initial',
+        border: 'solid 1px ' + (props.color ? props.color : 'var(--pico-border-color)'),
+        borderRadius: '1.25em',
+        backgroundColor: props.color ? `${props.color}30` : 'var(--pico-background-color)',
+        lineHeight: '1.25em',
+        padding: "0.25rem 0.75rem",
+    }
     return (
         <span style={TagStyle}>{props.name}</span>
-    );
-}
-
-
-const TagsStyle = {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: '0.125rem',
-}
-
-
-const Tags: FC<{ names: string[] }> = (props) => {
-    return (
-        <p style={TagsStyle}>
-            {props.names.map((name) => <Tag name={name}></Tag>)}
-        </p>
     );
 }
 
@@ -91,10 +74,12 @@ const LinkItemCard: FC<{ link: LinkItemProps }> = (props) => {
             </p>
             <footer>
                 <p style='text-align: right;'>{(new Date(props.link.created_at || Date.now())).toDateString()}</p>
-                {'string' === typeof props.link.tags ? <Tags names={props.link.tags}></Tags> : null}
+                <p style="text-align: right;">
+                    {'string' === typeof props.link.name ? <Tag name={props.link.name} color={props.link.color}></Tag> : null}
+                </p>
                 <p style={LinkItemStyleButtonGroup}>
                     <ButtonEdit />
-                    <ButtonDelete link_id={props.link.link_id || 0} onclick="setTimeout(() => this.parentElement.parentElement.parentElement.remove(), 1000)"/>
+                    <ButtonDelete link_id={props.link.link_id || 0} onclick="setTimeout(() => this.parentElement.parentElement.parentElement.remove(), 1000)" />
                 </p>
             </footer>
         </article>
@@ -121,12 +106,12 @@ const LinkItemTableItem: FC<{ link: LinkItemProps }> = (props) => {
             </td>
             <td style="text-wrap: nowrap;">{(new Date(props.link.created_at || Date.now())).toDateString()}</td>
             <td>
-                {'string' === typeof props.link.tags ? <Tags names={props.link.tags}></Tags> : null}
+                {'string' === typeof props.link.name ? <Tag name={props.link.name} color={props.link.color}></Tag> : null}
             </td>
 
             <td style="display: flex; gap: 1rem;">
                 <ButtonEdit />
-                <ButtonDelete link_id={props.link.link_id || 0} onclick="setTimeout(() => this.parentElement.parentElement.remove(), 1000)"/>
+                <ButtonDelete link_id={props.link.link_id || 0} onclick="setTimeout(() => this.parentElement.parentElement.remove(), 1000)" />
             </td>
         </tr>
     );
