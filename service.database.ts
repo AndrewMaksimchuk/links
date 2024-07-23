@@ -27,6 +27,7 @@ export type UserDatabase = {
     user_id: number
     telephone: string
     password: string
+    name: string
 }
 
 
@@ -62,7 +63,8 @@ export class ServiceDatabase {
             CREATE TABLE IF NOT EXISTS users (
             user_id INTEGER PRIMARY KEY,
             telephone TEXT NOT NULL UNIQUE,
-            password TEXT NOT NULL UNIQUE
+            password TEXT NOT NULL UNIQUE,
+            name TEXT
         );`
         this.database.query(sqlQuery).run()
     }
@@ -211,5 +213,13 @@ export class ServiceDatabase {
         const sqlQuery = `DELETE FROM ${this.tables.tags} WHERE tag_id = ?;`
         this.database.run(sqlQuery, [tag_id])
         return tag_id;
+    }
+
+
+    public updateUserColumn<T extends keyof Omit<UserDatabase, "user_id">>(column: T, data: UserDatabase[T], user: UserDatabase) {
+        Logger.log('Function: updateUserColumn', __filename)
+        const sqlQuery = `UPDATE ${this.tables.users} SET ${column} = ? WHERE user_id = ?;`
+        this.database.run(sqlQuery, [data, user.user_id])
+        return this.getUser(user.telephone)
     }
 }

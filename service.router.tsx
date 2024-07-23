@@ -4,12 +4,12 @@ import type { ServiceUser, User } from "./service.user"
 import type { ServiceLink, Link } from "./service.link"
 import type { Stringify, Prettify } from "./utility.types"
 import { getCookie, setCookie } from 'hono/cookie'
-import { Add, Dashboard, TagsContext } from './page.dashboard'
+import { Add, Dashboard, Greeting, SettingsUser, TagsContext, UserContext } from './page.dashboard'
 import { ServiceTag, type Tag } from "./service.tag"
 import { Logger } from "./service.logger"
 import { Layout } from "./page.layout"
 import { Index } from "./page.index"
-import { Notification } from "./component.notification"
+import { Notification, type NotificationProps } from "./component.notification"
 import { Links } from "./component.links"
 import { TagNotification } from "./component.tag-notification"
 import { Fragment } from "hono/jsx"
@@ -27,6 +27,7 @@ export const routes = {
   linkAddFormUpdate: '/link-add-form-update',
   tagCreate: 'tag-create',
   tagDelete: 'tag-delete',
+  userUpdateName: 'user-update-name',
 }
 
 
@@ -135,14 +136,21 @@ export class Router {
 
   public dashboard = async (ctx: Context) => {
     Logger.log('Function: dashboard', __filename)
-    const userId = await this.getUserId(ctx)
-    const userLinks = "number" === typeof userId ? await this.getUserLinks(userId) : []
+    const user = await this.getUser(ctx)
+
+    if (null === user) {
+      return ctx.redirect(this.routes.login);
+    }
+
+    const isNumber = "number" === typeof user.user_id
+    const userLinks = isNumber ? await this.getUserLinks(user.user_id) : []
+    const tags = isNumber ? this.serviceTag.getTags(user.user_id) : []
     const linkViewState = getCookie(ctx, 'linkView') ?? ''
     const View = this.selectLinkView(!linkViewState, userLinks)
-    const tags = "number" === typeof userId ? this.serviceTag.getTags(userId) : []
+
     return ctx.html(
       <Layout>
-        <Dashboard linkViewState={linkViewState} tags={tags}>
+        <Dashboard linkViewState={linkViewState} tags={tags} user={user}>
           {View}
         </Dashboard>
       </Layout>);
@@ -254,4 +262,40 @@ export class Router {
     return ctx.html(<Add />);
   }
 
+
+  public userUpdateName = async (ctx: Context) => {
+    Logger.log('Function: userUpdateName', __filename)
+    const body = await ctx.req.parseBody<{ userName: string }>()
+    const currentUser = await this.getUser(ctx)
+    const notification: NotificationProps = {
+      status: "warn",
+      body: "Can`t update your name!",
+    }
+    let userNewName = ""
+
+    if (body.userName && currentUser) {
+      const updatedCurrentUser = this.serviceUser.updateName(body.userName, currentUser)
+      if (updatedCurrentUser) {
+        if (currentUser.name === updatedCurrentUser.name) {
+          notification.status = "info"
+          notification.body = "Your name the same, nothing to change"
+        } else {
+          UserContext.values = [updatedCurrentUser]
+          notification.status = "success"
+          notification.body = "Name is updated"
+          userNewName = updatedCurrentUser.name
+        }
+      }
+    }
+
+    return ctx.html(
+      <Fragment>
+        <SettingsUser />
+        <div id="userGreeting" hx-swap-oob="outerHTML">
+          <Greeting name={userNewName} />
+        </div>
+        <Notification status={notification.status} body={notification.body}></Notification>
+      </Fragment>
+    );
+  }
 }

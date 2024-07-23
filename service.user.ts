@@ -1,9 +1,7 @@
 import type { ServiceDatabase, UserDatabase } from "./service.database"
 import { Logger } from "./service.logger"
 
-export interface User extends UserDatabase {
-    name?: string
-}
+export interface User extends UserDatabase { }
 
 export class ServiceUser {
     private database: ServiceDatabase
@@ -51,12 +49,22 @@ export class ServiceUser {
         return correctPassword ? userDatabase : null;
     }
 
+
     public findByPasswordHash(passwordHash: string) {
+        Logger.log('Function: findByPasswordHash', __filename)
         return this.database.getUserByPasswordHash(passwordHash);
     }
 
-    public getUserData<T extends keyof UserDatabase>(token: string, field: T):UserDatabase[T] | null {
+
+    public getUserData<T extends keyof UserDatabase>(token: string, field: T): UserDatabase[T] | null {
+        Logger.log('Function: getUserData', __filename)
         const user = this.database.getUserByPasswordHash(token)
         return null === user ? user : user[field];
+    }
+
+
+    public updateName(newName: string, user: User) {
+        Logger.log('Function: updateName', __filename)
+        return this.database.updateUserColumn("name", newName, user);
     }
 }

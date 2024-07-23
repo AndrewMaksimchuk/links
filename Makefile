@@ -1,0 +1,2 @@
+default:
+	bun run dev

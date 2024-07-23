@@ -7,6 +7,7 @@ import { TagNotification } from './component.tag-notification'
 
 const ViewContext = createContext('')
 export const TagsContext = createContext<Tag[]>([])
+export const UserContext = createContext<User | null>(null)
 
 
 const SelectTags = () => {
@@ -124,6 +125,33 @@ const Settings = () => {
 }
 
 
+export const SettingsUser = () => {
+    const user = useContext(UserContext)
+    return (
+        <Fragment>
+            <form
+                hx-post={routes.userUpdateName}
+                hx-target="this"
+                hx-swap="outerHTML"
+                hx-on--after-request="this.reset()"
+            >
+                <label htmlFor="userName">Write your name</label>
+                <input
+                    type="text"
+                    id="userName"
+                    name="userName"
+                    inputmode="text"
+                    minlength={1}
+                    required
+                    value={user?.name ?? ""}
+                    placeholder={user?.name ?? "Taras"} />
+                <input type="submit" value="Update name" />
+            </form>
+        </Fragment>
+    );
+}
+
+
 const SettingsTags = () => {
     const tags = useContext(TagsContext)
 
@@ -136,7 +164,7 @@ const SettingsTags = () => {
                     <input type="text" name="name" id="inputTagName" placeholder="web" inputmode="text" minlength={3} required autofocus />
                     <label for="inputTagColor">Choose a color</label>
                     <input type="color" name="color" id="inputTagColor" required />
-                    <input type="submit" value="Create" />
+                    <input type="submit" value="Create tag" />
                 </fieldset>
             </form>
             <p id="createTagResponse" style="display: flex; flex-wrap: wrap; gap: 1rem; min-height: 2rem;">
@@ -154,6 +182,7 @@ export const SettingsModal = () => {
                 <header>
                     <h2>Settings</h2>
                 </header>
+                <SettingsUser />
                 <SettingsTags />
                 <footer>
                     <button
@@ -172,11 +201,19 @@ export const SettingsModal = () => {
 }
 
 
-const Header: FC<{ name: string | undefined }> = (props) => {
+export const Greeting: FC<{ name: string | undefined }> = (props) => {
+    const name = props.name ?? "my friend"
+    return <h1 id="userGreeting">Hello, {name}!</h1>;
+}
+
+
+const Header = () => {
+    const user = useContext(UserContext)
     return (
         <header>
             <div style="display: flex; justify-content: space-between;">
-                {props.name ? <h1>Hello, {props.name}!</h1> : <h1>Hello, my friend!</h1>}
+                <Greeting name={user?.name} />
+                {/* {user?.name ? <h1>Hello, {user.name}!</h1> : <h1>Hello, my friend!</h1>} */}
                 <div style="display: flex; gap: 1rem;">
                     <Settings></Settings>
                     <Logout></Logout>
@@ -187,15 +224,17 @@ const Header: FC<{ name: string | undefined }> = (props) => {
     );
 }
 
-export const Dashboard = (props: PropsWithChildren<{ user?: Pick<User, 'name'>, linkViewState: string, tags: Tag[] }>) => {
+export const Dashboard = (props: PropsWithChildren<{ user: User, linkViewState: string, tags: Tag[] }>) => {
     return (
         <Fragment>
-            <ViewContext.Provider value={props.linkViewState}>
-                <TagsContext.Provider value={props.tags}>
-                    <Header name={props.user?.name}></Header>
-                    <SettingsModal />
-                </TagsContext.Provider>
-            </ViewContext.Provider>
+            <UserContext.Provider value={props.user}>
+                <ViewContext.Provider value={props.linkViewState}>
+                    <TagsContext.Provider value={props.tags}>
+                        <Header />
+                        <SettingsModal />
+                    </TagsContext.Provider>
+                </ViewContext.Provider>
+            </UserContext.Provider>
             <main>
                 {props.children}
             </main>

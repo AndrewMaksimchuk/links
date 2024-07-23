@@ -2,6 +2,15 @@ import type { FC } from "hono/jsx"
 
 type Status = "success" | "error" | "warn" | "info"
 
+
+export interface NotificationProps { 
+    status: Status
+    body: string
+    header?: string
+    notificationid?: number
+}
+
+
 const NotificationStyle = {
     padding: "var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal)",
 }
@@ -19,7 +28,7 @@ const setStatusStyle = (status: Status) => {
     };
 }
 
-export const Notification: FC<{ status: Status, body: string, header?: string, notificationid?: number }> = (props) => {
+export const Notification: FC<NotificationProps> = (props) => {
     return (
         <div id="notification" hx-swap-oob="afterbegin">
             <div style={NotificationStyle} data-notificationId={props.notificationid}>

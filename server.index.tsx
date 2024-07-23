@@ -38,6 +38,7 @@ app.post(router.routes.linkChangeView, router.linkChangeView)
 app.post(router.routes.tagCreate, router.tagCreate)
 app.post(router.routes.tagDelete, router.tagDelete)
 app.post(router.routes.linkAddFormUpdate, router.linkAddFormUpdate)
+app.post(router.routes.userUpdateName, router.userUpdateName)
 app.notFound((ctx) => ctx.redirect(router.routes.main))
 
 export default {
