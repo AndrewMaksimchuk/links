@@ -63,7 +63,14 @@ export const Add = () => {
 const Search = () => {
     return (
         <Fragment>
-            <form hx-post={routes.search} hx-target="#searchResult" hx-swap="innerHTML" role="search">
+            <form
+                hx-post={routes.search}
+                hx-target="#searchResult"
+                hx-swap="innerHTML"
+                hx-on--before-request="searchClearButton?.remove()"
+                hx-on--after-request="this.reset()"
+                role="search"
+            >
                 <input
                     type="search"
                     name="search"

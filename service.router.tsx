@@ -191,7 +191,7 @@ export class Router {
       <Fragment>
         {View}
         <div id="searchResult" hx-swap-oob="beforebegin">
-          <button type="button" onclick="searchResult.innerText = ''; this.remove();">Clear search result view</button>
+          <button id="searchClearButton" type="button" onclick="searchResult.innerText = ''; this.remove();">Clear search result view</button>
         </div>
       </Fragment>
     );

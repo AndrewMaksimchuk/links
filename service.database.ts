@@ -252,7 +252,7 @@ export class ServiceDatabase {
 
     public searchTextLinks(text: string) {
         Logger.log('Function: searchTextLinks', __filename)
-        const sqlQuery = `SELECT url FROM ${this.tables.vlinks} WHERE ${this.tables.vlinks} MATCH ?;`
-        return this.database.query<{ url: string }, string>(sqlQuery).all(text);
+        const sqlQuery = `SELECT url FROM ${this.tables.vlinks} WHERE ${this.tables.vlinks} = ?;`
+        return this.database.query<{ url: string }, string>(sqlQuery).all(text + "*");
     }
 }
