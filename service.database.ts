@@ -1,6 +1,7 @@
 import type { Nullable, JSONstring, Prettify } from "./utility.types"
 import { Database } from "bun:sqlite"
 import { Logger } from "./service.logger"
+import type { Link } from "./service.link"
 
 
 type LinkOGP = Nullable<{ // Open graph protocol
@@ -46,6 +47,7 @@ export class ServiceDatabase {
     private tables = {
         users: 'users',
         links: 'links',
+        vlinks: 'vlinks',
         tags: 'tags',
     }
 
@@ -54,6 +56,7 @@ export class ServiceDatabase {
         this.database = new Database("database.sqlite")
         this.createTableUsers()
         this.createTableLinks()
+        this.createTableLinksVirtual()
         this.createTableTag()
     }
 
@@ -92,6 +95,21 @@ export class ServiceDatabase {
         );`
         this.database.query(sqlQuery).run()
     }
+
+
+    private createTableLinksVirtual() {
+        Logger.log('Function: createTableLinksVirtual', __filename)
+        const sqlQuery = `CREATE VIRTUAL TABLE IF NOT EXISTS ${this.tables.vlinks} USING fts5(url, title, description, site_name, tags);`
+        this.database.query(sqlQuery).run()
+    }
+
+
+    private insertIntoLinksVirtual({ url, title, description, site_name, tags }: LinkDatabase) {
+        Logger.log('Function: insertIntoLinksVirtual', __filename)
+        const sqlQuery = `INSERT INTO ${this.tables.vlinks} VALUES (?, ?, ?, ?, ?);`
+        this.database.query(sqlQuery).run(url, title, description, site_name, tags)
+    }
+
 
     private createTableTag() {
         Logger.log('Function: createTableTag', __filename)
@@ -177,11 +195,12 @@ export class ServiceDatabase {
     }
 
 
-    public createLink(link: Pick<LinkDatabase, "user_id" | "url" | "created_at" | "tags">) {
+    public createLink(link: LinkDatabase) {
         Logger.log('Function: createLink', __filename)
         const sqlQuery = `INSERT INTO ${this.tables.links} (user_id, url, created_at, tags) 
                           VALUES (?, ?, ?, ?);`
         this.database.run(sqlQuery, [link.user_id, link.url, link.created_at, link.tags])
+        this.insertIntoLinksVirtual(link)
         return this.getLink(link.url);
     }
 
@@ -191,6 +210,13 @@ export class ServiceDatabase {
         const sqlQuery = `DELETE FROM ${this.tables.links} WHERE link_id = ?;`
         this.database.run(sqlQuery, [linkId])
         return !Boolean(this.getLinkById(linkId));
+    }
+
+
+    public getLinksByUrls(urls: { url: string }[]) {
+        Logger.log('Function: getLinksByUrls', __filename)
+        const sqlQuery = `SELECT * FROM ${this.tables.links} INNER JOIN ${this.tables.tags} ON ${this.tables.tags}.tag_id = ${this.tables.links}.tags WHERE ${this.tables.links}.url = ?;`
+        return urls.map((item) => this.database.prepare<LinkDatabase & TagDatabase, string>(sqlQuery).get(item.url));
     }
 
 
@@ -221,5 +247,12 @@ export class ServiceDatabase {
         const sqlQuery = `UPDATE ${this.tables.users} SET ${column} = ? WHERE user_id = ?;`
         this.database.run(sqlQuery, [data, user.user_id])
         return this.getUser(user.telephone)
+    }
+
+
+    public searchTextLinks(text: string) {
+        Logger.log('Function: searchTextLinks', __filename)
+        const sqlQuery = `SELECT url FROM ${this.tables.vlinks} WHERE ${this.tables.vlinks} MATCH ?;`
+        return this.database.query<{ url: string }, string>(sqlQuery).all(text);
     }
 }

@@ -4,6 +4,7 @@ import type { ServiceUser, User } from "./service.user"
 import type { ServiceLink, Link } from "./service.link"
 import type { Stringify, Prettify } from "./utility.types"
 import { getCookie, setCookie } from 'hono/cookie'
+import { Fragment } from "hono/jsx"
 import { Add, Dashboard, Greeting, SettingsUser, TagsContext, UserContext } from './page.dashboard'
 import { ServiceTag, type Tag } from "./service.tag"
 import { Logger } from "./service.logger"
@@ -12,7 +13,8 @@ import { Index } from "./page.index"
 import { Notification, type NotificationProps } from "./component.notification"
 import { Links } from "./component.links"
 import { TagNotification } from "./component.tag-notification"
-import { Fragment } from "hono/jsx"
+import type { ServiceSearch } from "./service.search"
+
 
 export const routes = {
   main: '/',
@@ -36,13 +38,15 @@ export class Router {
   private serviceUser: ServiceUser
   private serviceLink: ServiceLink
   private serviceTag: ServiceTag
+  private serviceSearch: ServiceSearch
 
 
-  constructor(ServiceUser: ServiceUser, ServiceAuth: ServiceAuth, ServiceLink: ServiceLink, ServiceTag: ServiceTag) {
+  constructor(ServiceUser: ServiceUser, ServiceAuth: ServiceAuth, ServiceLink: ServiceLink, ServiceTag: ServiceTag, ServiceSearch: ServiceSearch) {
     this.serviceUser = ServiceUser
     this.serviceAuth = ServiceAuth
     this.serviceLink = ServiceLink
     this.serviceTag = ServiceTag
+    this.serviceSearch = ServiceSearch
   }
 
 
@@ -166,9 +170,31 @@ export class Router {
     return ctx.html(View);
   }
 
-  public search(ctx: Context) {
+
+  public search = async (ctx: Context) => {
     Logger.log('Function: search', __filename)
-    return ctx.html('Search html');
+    const body = await ctx.req.parseBody<{ search: string }>()
+
+    if (body.search.length < 2) {
+      return ctx.html("Need more letters!");
+    }
+
+    const links = this.serviceSearch.search(body.search).filter((link) => null !== link)
+
+    if (links.length === 0) {
+      return ctx.html("Nothing found");
+    }
+
+    const linkViewState = getCookie(ctx, 'linkView') ?? ''
+    const View = this.selectLinkView(!linkViewState, links)
+    return ctx.html(
+      <Fragment>
+        {View}
+        <div id="searchResult" hx-swap-oob="beforebegin">
+          <button type="button" onclick="searchResult.innerText = ''; this.remove();">Clear search result view</button>
+        </div>
+      </Fragment>
+    );
   }
 
   public linkAdd = async (ctx: Context) => {

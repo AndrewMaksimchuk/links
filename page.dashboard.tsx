@@ -63,16 +63,18 @@ export const Add = () => {
 const Search = () => {
     return (
         <Fragment>
-            <form action={routes.search} method="get" role="search">
+            <form hx-post={routes.search} hx-target="#searchResult" hx-swap="innerHTML" role="search">
                 <input
                     type="search"
                     name="search"
                     id="search"
                     placeholder='picocss'
+                    minlength={2}
+                    required
                     autofocus />
                 <button type="submit">Search</button>
             </form>
-            <section id="search-result"></section>
+            <section id="searchResult"></section>
         </Fragment>
     );
 }

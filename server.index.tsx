@@ -7,6 +7,7 @@ import { ServiceDatabase } from './service.database'
 import { ServiceAuth } from './service.auth'
 import { ServiceLink } from './service.link'
 import { ServiceTag } from './service.tag'
+import { ServiceSearch } from './service.search'
 
 const app = new Hono({
   strict: true,
@@ -17,6 +18,7 @@ const router = new Router(
   new ServiceAuth(), 
   new ServiceLink(ServiceDatabase.instance),
   new ServiceTag(ServiceDatabase.instance),
+  new ServiceSearch(ServiceDatabase.instance),
 )
 
 app.use(logger())
@@ -30,7 +32,7 @@ app.post(router.routes.logout, router.logout)
 app.get(router.routes.main, router.main)
 app.use(router.usePrivateRoute)
 app.get(router.routes.dashboard, router.dashboard)
-app.get(router.routes.search, router.search)
+app.post(router.routes.search, router.search)
 app.post(router.routes.linkAdd, router.linkAdd)
 app.post(router.routes.linkEdit, router.linkEdit)
 app.delete(router.routes.linkDelete, router.linkDelete)
