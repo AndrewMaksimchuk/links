@@ -1,6 +1,8 @@
-import { Fragment, createContext, useContext, type FC, type PropsWithChildren } from 'hono/jsx'
+import type { FC, PropsWithChildren } from 'hono/jsx'
 import type { User } from "./service.user"
 import type { Tag } from './service.tag'
+import type { Link } from "./service.link"
+import { Fragment, createContext, useContext } from 'hono/jsx'
 import { routes } from "./service.router"
 import { TagNotification } from './component.tag-notification'
 
@@ -8,6 +10,7 @@ import { TagNotification } from './component.tag-notification'
 const ViewContext = createContext('')
 export const TagsContext = createContext<Tag[]>([])
 export const UserContext = createContext<User | null>(null)
+export const LinksContext = createContext<Link[] | null>(null)
 
 
 const SelectTags = () => {
@@ -107,12 +110,26 @@ const Views = () => {
     );
 }
 
+
+export const LinksCounter = () => {
+    const links = useContext(LinksContext)
+    return (
+        <span id="linksCounter" hx-swap-oob="outerHTML" style="width: 10ch; text-align: right;">
+            {links?.length ?? 0} pcs
+        </span>
+    );
+}
+
+
 const Nav = () => {
     return (
         <nav style="display: grid; grid-template-columns: 1fr;">
             <Add></Add>
             <Search></Search>
-            <Views></Views>
+            <div style="display: flex; align-items: center;">
+                <Views></Views>
+                <LinksCounter />
+            </div>
         </nav>
     );
 }

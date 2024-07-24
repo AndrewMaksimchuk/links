@@ -5,7 +5,7 @@ import type { ServiceLink, Link } from "./service.link"
 import type { Stringify, Prettify } from "./utility.types"
 import { getCookie, setCookie } from 'hono/cookie'
 import { Fragment } from "hono/jsx"
-import { Add, Dashboard, Greeting, SettingsUser, TagsContext, UserContext } from './page.dashboard'
+import { Add, Dashboard, Greeting, LinksContext, LinksCounter, SettingsUser, TagsContext, UserContext } from './page.dashboard'
 import { ServiceTag, type Tag } from "./service.tag"
 import { Logger } from "./service.logger"
 import { Layout } from "./page.layout"
@@ -151,6 +151,7 @@ export class Router {
     const tags = isNumber ? this.serviceTag.getTags(user.user_id) : []
     const linkViewState = getCookie(ctx, 'linkView') ?? ''
     const View = this.selectLinkView(!linkViewState, userLinks)
+    LinksContext.values = [userLinks]
 
     return ctx.html(
       <Layout>
@@ -180,7 +181,7 @@ export class Router {
     }
 
     const userId = await this.getUserId(ctx)
-    if(null === userId) {
+    if (null === userId) {
       return ctx.html("Can`t find you!");
     }
 
@@ -201,6 +202,7 @@ export class Router {
       </Fragment>
     );
   }
+
 
   public linkAdd = async (ctx: Context) => {
     Logger.log('Function: linkAdd', __filename)
@@ -228,15 +230,18 @@ export class Router {
       );
     }
 
+    LinksContext.values = [userLinks]
     const notificationid = Date.now()
     ctx.header('HX-Trigger', JSON.stringify({ notifyClose: { notificationid } }))
     return ctx.html(
       <Fragment>
         {View}
+        <LinksCounter />
         <Notification status="success" body="Add new link!" notificationid={notificationid}></Notification>
       </Fragment>
     );
   }
+
 
   public linkEdit(ctx: Context) {
     Logger.log('Function: linkEdit', __filename)
@@ -246,11 +251,19 @@ export class Router {
   public linkDelete = async (ctx: Context) => {
     Logger.log('Function: linkDelete', __filename)
     const body = await ctx.req.parseBody<Stringify<Pick<Link, "link_id">>>()
+    const userId = await this.getUserId(ctx)
 
     if (this.serviceLink.deleteLink(Number(body.link_id))) {
+      const userLinks = "number" === typeof userId ? await this.getUserLinks(userId) : []
+      LinksContext.values = [userLinks]
       const notificationid = Date.now()
       ctx.header('HX-Trigger', JSON.stringify({ notifyClose: { notificationid } }))
-      return ctx.html(<Notification status="success" body="Link deleted" notificationid={notificationid}></Notification>);
+      return ctx.html(
+        <Fragment>
+          <LinksCounter />
+          <Notification status="success" body="Link deleted" notificationid={notificationid}></Notification>
+        </Fragment>
+      );
     }
 
     return ctx.html(<Notification status="warn" body="Can`t delete link!"></Notification>);
