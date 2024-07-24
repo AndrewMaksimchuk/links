@@ -195,13 +195,18 @@ export class ServiceDatabase {
     }
 
 
-    public createLink(link: LinkDatabase) {
+    public createLink(link: Pick<LinkDatabase, "user_id" | "url" | "created_at" | "tags">) {
         Logger.log('Function: createLink', __filename)
         const sqlQuery = `INSERT INTO ${this.tables.links} (user_id, url, created_at, tags) 
                           VALUES (?, ?, ?, ?);`
         this.database.run(sqlQuery, [link.user_id, link.url, link.created_at, link.tags])
-        this.insertIntoLinksVirtual(link)
-        return this.getLink(link.url);
+        const newCreatedLink = this.getLink(link.url);
+
+        if (null !== newCreatedLink) {
+            this.insertIntoLinksVirtual(newCreatedLink)
+        }
+
+        return newCreatedLink;
     }
 
 
@@ -215,7 +220,7 @@ export class ServiceDatabase {
         Logger.log('Function: deleteLink', __filename)
         const linkToDelete = this.getLinkById(linkId)
 
-        if(null === linkToDelete) {
+        if (null === linkToDelete) {
             return true;
         }
 
