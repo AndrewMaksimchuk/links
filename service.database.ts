@@ -99,15 +99,15 @@ export class ServiceDatabase {
 
     private createTableLinksVirtual() {
         Logger.log('Function: createTableLinksVirtual', __filename)
-        const sqlQuery = `CREATE VIRTUAL TABLE IF NOT EXISTS ${this.tables.vlinks} USING fts5(url, title, description, site_name, tags);`
+        const sqlQuery = `CREATE VIRTUAL TABLE IF NOT EXISTS ${this.tables.vlinks} USING fts5(user_id, url, title, description, site_name, tags);`
         this.database.query(sqlQuery).run()
     }
 
 
-    private insertIntoLinksVirtual({ url, title, description, site_name, tags }: LinkDatabase) {
+    private insertIntoLinksVirtual({ user_id, url, title, description, site_name, tags }: LinkDatabase) {
         Logger.log('Function: insertIntoLinksVirtual', __filename)
-        const sqlQuery = `INSERT INTO ${this.tables.vlinks} VALUES (?, ?, ?, ?, ?);`
-        this.database.query(sqlQuery).run(url, title, description, site_name, tags)
+        const sqlQuery = `INSERT INTO ${this.tables.vlinks} VALUES (?, ?, ?, ?, ?, ?);`
+        this.database.query(sqlQuery).run(user_id, url, title, description, site_name, tags)
     }
 
 
@@ -205,18 +205,35 @@ export class ServiceDatabase {
     }
 
 
+    private deleteVLink(url: string, userId: number) {
+        Logger.log('Function: deleteVLink', __filename)
+        const sqlQuery = `DELETE FROM ${this.tables.vlinks} WHERE url = ? AND user_id = ?;`
+        this.database.run(sqlQuery, [url, userId])
+    }
+
     public deleteLink(linkId: number) {
         Logger.log('Function: deleteLink', __filename)
+        const linkToDelete = this.getLinkById(linkId)
+
+        if(null === linkToDelete) {
+            return true;
+        }
+
         const sqlQuery = `DELETE FROM ${this.tables.links} WHERE link_id = ?;`
         this.database.run(sqlQuery, [linkId])
+        this.deleteVLink(linkToDelete.url, linkToDelete.user_id)
         return !Boolean(this.getLinkById(linkId));
     }
 
 
-    public getLinksByUrls(urls: { url: string }[]) {
+    public getLinksByUrls(urls: { url: string }[], userId: number) {
         Logger.log('Function: getLinksByUrls', __filename)
-        const sqlQuery = `SELECT * FROM ${this.tables.links} INNER JOIN ${this.tables.tags} ON ${this.tables.tags}.tag_id = ${this.tables.links}.tags WHERE ${this.tables.links}.url = ?;`
-        return urls.map((item) => this.database.prepare<LinkDatabase & TagDatabase, string>(sqlQuery).get(item.url));
+        const sqlQuery = `SELECT * FROM ${this.tables.links} 
+            INNER JOIN ${this.tables.tags} 
+            ON ${this.tables.tags}.tag_id = ${this.tables.links}.tags 
+            WHERE ${this.tables.links}.url = ? 
+            AND ${this.tables.links}.user_id = ?;`
+        return urls.map((item) => this.database.prepare<LinkDatabase & TagDatabase, [string, number]>(sqlQuery).get(item.url, userId));
     }
 
 
@@ -250,9 +267,9 @@ export class ServiceDatabase {
     }
 
 
-    public searchTextLinks(text: string) {
+    public searchTextLinks(text: string, userId: number) {
         Logger.log('Function: searchTextLinks', __filename)
-        const sqlQuery = `SELECT url FROM ${this.tables.vlinks} WHERE ${this.tables.vlinks} = ?;`
-        return this.database.query<{ url: string }, string>(sqlQuery).all(text + "*");
+        const sqlQuery = `SELECT url FROM ${this.tables.vlinks} WHERE ${this.tables.vlinks} = ? AND user_id = ?;`
+        return this.database.query<{ url: string }, [string, number]>(sqlQuery).all(text + "*", userId);
     }
 }

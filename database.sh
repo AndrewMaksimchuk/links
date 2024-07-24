@@ -1,5 +1,3 @@
-# sqlite3 ./database.sqlite '.mode box' 'delete from users'
-
 echo "[ .tables ]"
 sqlite3 ./database.sqlite '.tables'
 

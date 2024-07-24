@@ -179,7 +179,12 @@ export class Router {
       return ctx.html("Need more letters!");
     }
 
-    const links = this.serviceSearch.search(body.search).filter((link) => null !== link)
+    const userId = await this.getUserId(ctx)
+    if(null === userId) {
+      return ctx.html("Can`t find you!");
+    }
+
+    const links = this.serviceSearch.search(body.search, userId).filter((link) => null !== link)
 
     if (links.length === 0) {
       return ctx.html("Nothing found");
