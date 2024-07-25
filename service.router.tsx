@@ -3,6 +3,8 @@ import type { ServiceAuth } from "./service.auth"
 import type { ServiceUser, User } from "./service.user"
 import type { ServiceLink, Link } from "./service.link"
 import type { Stringify, Prettify } from "./utility.types"
+import type { ServiceSearch } from "./service.search"
+import type { ServicePagination } from "./service.pagination"
 import { getCookie, setCookie } from 'hono/cookie'
 import { Fragment } from "hono/jsx"
 import { Add, Dashboard, Greeting, LinksContext, LinksCounter, SettingsUser, TagsContext, UserContext } from './page.dashboard'
@@ -13,7 +15,7 @@ import { Index } from "./page.index"
 import { Notification, type NotificationProps } from "./component.notification"
 import { Links } from "./component.links"
 import { TagNotification } from "./component.tag-notification"
-import type { ServiceSearch } from "./service.search"
+import { Pagination } from "./component.pagination"
 
 
 export const routes = {
@@ -27,10 +29,11 @@ export const routes = {
   linkEdit: '/link-edit',
   linkChangeView: '/link-change-view',
   linkAddFormUpdate: '/link-add-form-update',
-  tagCreate: 'tag-create',
-  tagDelete: 'tag-delete',
-  userUpdateName: 'user-update-name',
-}
+  tagCreate: '/tag-create',
+  tagDelete: '/tag-delete',
+  userUpdateName: '/user-update-name',
+  paginationViewUpdate: '/pagination-view-update',
+} as const
 
 
 export class Router {
@@ -39,14 +42,16 @@ export class Router {
   private serviceLink: ServiceLink
   private serviceTag: ServiceTag
   private serviceSearch: ServiceSearch
+  private servicePagination: ServicePagination
 
 
-  constructor(ServiceUser: ServiceUser, ServiceAuth: ServiceAuth, ServiceLink: ServiceLink, ServiceTag: ServiceTag, ServiceSearch: ServiceSearch) {
+  constructor(ServiceUser: ServiceUser, ServiceAuth: ServiceAuth, ServiceLink: ServiceLink, ServiceTag: ServiceTag, ServiceSearch: ServiceSearch, ServicePagination: ServicePagination) {
     this.serviceUser = ServiceUser
     this.serviceAuth = ServiceAuth
     this.serviceLink = ServiceLink
     this.serviceTag = ServiceTag
     this.serviceSearch = ServiceSearch
+    this.servicePagination = ServicePagination
   }
 
 
@@ -133,9 +138,9 @@ export class Router {
   }
 
 
-  private selectLinkView = (isCard: boolean, userLinks: Link[]) => {
+  private selectLinkView = (isCard: boolean) => {
     Logger.log('Function: selectLinkView', __filename)
-    return isCard ? <Links links={userLinks}></Links> : <Links links={userLinks} view="table"></Links>;
+    return isCard ? <Links /> : <Links view="table" />;
   }
 
   public dashboard = async (ctx: Context) => {
@@ -150,7 +155,7 @@ export class Router {
     const userLinks = isNumber ? await this.getUserLinks(user.user_id) : []
     const tags = isNumber ? this.serviceTag.getTags(user.user_id) : []
     const linkViewState = getCookie(ctx, 'linkView') ?? ''
-    const View = this.selectLinkView(!linkViewState, userLinks)
+    const View = this.selectLinkView(!linkViewState)
     LinksContext.values = [userLinks]
 
     return ctx.html(
@@ -167,8 +172,15 @@ export class Router {
     setCookie(ctx, 'linkView', body.viewState ?? '', { httpOnly: true, secure: true })
     const userId = await this.getUserId(ctx)
     const userLinks = "number" === typeof userId ? await this.getUserLinks(userId) : []
-    const View = this.selectLinkView(!body.viewState, userLinks)
-    return ctx.html(View);
+    LinksContext.values = [userLinks]
+    const View = this.selectLinkView(!body.viewState)
+    const activePage = this.servicePagination.getActivePage(ctx)
+    return ctx.html(
+      <Fragment>
+        <Pagination activePage={activePage} />
+        {View}
+      </Fragment>
+    );
   }
 
 
@@ -191,8 +203,9 @@ export class Router {
       return ctx.html("Nothing found");
     }
 
+    LinksContext.values = [links]
     const linkViewState = getCookie(ctx, 'linkView') ?? ''
-    const View = this.selectLinkView(!linkViewState, links)
+    const View = this.selectLinkView(!linkViewState)
     return ctx.html(
       <Fragment>
         {View}
@@ -217,8 +230,9 @@ export class Router {
 
     const isNewLinkCreate = this.serviceLink.setNewLink(formBody, user.user_id)
     const userLinks = "number" === typeof user.user_id ? await this.getUserLinks(user.user_id) : []
+    LinksContext.values = [userLinks]
     const linkViewState = getCookie(ctx, 'linkView') ?? ''
-    const View = this.selectLinkView(!linkViewState, userLinks)
+    const View = this.selectLinkView(!linkViewState)
 
     if (null === isNewLinkCreate) {
       Logger.error('Function: linkAdd', __filename, 'new link is null')
@@ -230,13 +244,14 @@ export class Router {
       );
     }
 
-    LinksContext.values = [userLinks]
+    const activePage = this.servicePagination.getActivePage(ctx)
     const notificationid = Date.now()
     ctx.header('HX-Trigger', JSON.stringify({ notifyClose: { notificationid } }))
     return ctx.html(
       <Fragment>
         {View}
         <LinksCounter />
+        <Pagination activePage={activePage} />
         <Notification status="success" body="Add new link!" notificationid={notificationid}></Notification>
       </Fragment>
     );
@@ -256,11 +271,13 @@ export class Router {
     if (this.serviceLink.deleteLink(Number(body.link_id))) {
       const userLinks = "number" === typeof userId ? await this.getUserLinks(userId) : []
       LinksContext.values = [userLinks]
+      const activePage = this.servicePagination.getActivePage(ctx)
       const notificationid = Date.now()
       ctx.header('HX-Trigger', JSON.stringify({ notifyClose: { notificationid } }))
       return ctx.html(
         <Fragment>
           <LinksCounter />
+          <Pagination activePage={activePage} />
           <Notification status="success" body="Link deleted" notificationid={notificationid}></Notification>
         </Fragment>
       );
@@ -339,6 +356,35 @@ export class Router {
           <Greeting name={userNewName} />
         </div>
         <Notification status={notification.status} body={notification.body}></Notification>
+      </Fragment>
+    );
+  }
+
+
+  public paginationViewUpdate = async (ctx: Context) => {
+    Logger.log('Function: paginationViewUpdate', __filename)
+    const body = await ctx.req.parseBody<{ page: string }>()
+    const user = await this.getUser(ctx)
+
+    if (null === user) {
+      return ctx.html(<Notification status="warn" body="Something is wrong!" />);
+    }
+
+    const isNumber = "number" === typeof user.user_id
+    const userLinks = isNumber ? await this.getUserLinks(user.user_id) : []
+    const linkViewState = getCookie(ctx, 'linkView') ?? ''
+    const View = this.selectLinkView(!linkViewState)
+    LinksContext.values = [userLinks]
+    const activePage = Number(body.page) || 1
+    this.servicePagination.setActivePage(ctx, body.page)
+
+    const notificationid = Date.now()
+    ctx.header('HX-Trigger', JSON.stringify({ notifyClose: { notificationid } }))
+    return ctx.html(
+      <Fragment>
+        <LinksCounter />
+        <Pagination activePage={activePage} />
+        {View}
       </Fragment>
     );
   }

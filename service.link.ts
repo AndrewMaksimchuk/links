@@ -25,7 +25,7 @@ export class ServiceLink {
 
     public getLinks(userId: number) {
         Logger.log('Function: getLinks', __filename)
-        return this.database.getLinksUser(userId);
+        return this.database.getLinksUser(userId).reverse();
     }
 
 

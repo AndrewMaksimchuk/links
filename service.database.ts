@@ -1,7 +1,6 @@
 import type { Nullable, JSONstring, Prettify } from "./utility.types"
 import { Database } from "bun:sqlite"
 import { Logger } from "./service.logger"
-import type { Link } from "./service.link"
 
 
 type LinkOGP = Nullable<{ // Open graph protocol

@@ -1,7 +1,8 @@
 import type { FC, PropsWithChildren } from 'hono/jsx'
 import type { Link } from "./service.link"
-import { Fragment } from "hono/jsx"
+import { Fragment, useContext } from "hono/jsx"
 import { routes } from './service.router'
+import { LinksContext } from './page.dashboard'
 
 
 type LinkItemProps = Partial<Link>
@@ -136,9 +137,10 @@ const LinkItemTable = (props: PropsWithChildren) => {
     );
 }
 
-export const Links: FC<{ links: LinkItemProps[], view?: "table" }> = (props) => {
+export const Links: FC<{ view?: "table" }> = (props) => {
+    const links = useContext(LinksContext) ?? []
     const ViewOfLinkItem = props.view ? LinkItemTableItem : LinkItemCard
-    const RenderedLinkItem = props.links.map((linkData) => <ViewOfLinkItem link={linkData}></ViewOfLinkItem>)
+    const RenderedLinkItem = links.map((linkData) => <ViewOfLinkItem link={linkData}></ViewOfLinkItem>)
     const View = props.view ? <LinkItemTable>{RenderedLinkItem}</LinkItemTable> : <LinkItemCardContainer>{RenderedLinkItem}</LinkItemCardContainer>
     return (
         <Fragment>

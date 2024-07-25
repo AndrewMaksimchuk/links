@@ -8,6 +8,7 @@ import { ServiceAuth } from './service.auth'
 import { ServiceLink } from './service.link'
 import { ServiceTag } from './service.tag'
 import { ServiceSearch } from './service.search'
+import { ServicePagination } from './service.pagination'
 
 const app = new Hono({
   strict: true,
@@ -15,10 +16,11 @@ const app = new Hono({
 
 const router = new Router(
   new ServiceUser(ServiceDatabase.instance),
-  new ServiceAuth(), 
+  new ServiceAuth(),
   new ServiceLink(ServiceDatabase.instance),
   new ServiceTag(ServiceDatabase.instance),
   new ServiceSearch(ServiceDatabase.instance),
+  new ServicePagination(),
 )
 
 app.use(logger())
@@ -26,7 +28,7 @@ app.use('/favicon.svg', serveStatic({ path: './favicon.svg' }))
 app.use('/favicon.ico', serveStatic({ path: './favicon.svg' }))
 app.use('/pico.yellow.min.css', serveStatic({ path: './pico.yellow.min.css' }))
 app.use('/htmx.min.js', serveStatic({ path: './htmx.min.js' }))
-app.use('/alpine.min.js', serveStatic({ path: './alpine.min.js'}))
+app.use('/alpine.min.js', serveStatic({ path: './alpine.min.js' }))
 app.post(router.routes.login, router.login)
 app.post(router.routes.logout, router.logout)
 app.get(router.routes.main, router.main)
@@ -41,6 +43,7 @@ app.post(router.routes.tagCreate, router.tagCreate)
 app.post(router.routes.tagDelete, router.tagDelete)
 app.post(router.routes.linkAddFormUpdate, router.linkAddFormUpdate)
 app.post(router.routes.userUpdateName, router.userUpdateName)
+app.post(router.routes.paginationViewUpdate, router.paginationViewUpdate)
 app.notFound((ctx) => ctx.redirect(router.routes.main))
 
 export default {

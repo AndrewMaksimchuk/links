@@ -5,6 +5,7 @@ import type { Link } from "./service.link"
 import { Fragment, createContext, useContext } from 'hono/jsx'
 import { routes } from "./service.router"
 import { TagNotification } from './component.tag-notification'
+import { Pagination } from './component.pagination'
 
 
 const ViewContext = createContext('')
@@ -261,6 +262,7 @@ export const Dashboard = (props: PropsWithChildren<{ user: User, linkViewState: 
                     </TagsContext.Provider>
                 </ViewContext.Provider>
             </UserContext.Provider>
+            <Pagination activePage={1} />
             <main>
                 {props.children}
             </main>
