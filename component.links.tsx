@@ -40,10 +40,10 @@ const ButtonDelete: FC<{ link_id: number, onclick: stringifiedFunction }> = (pro
             hx-delete={routes.linkDelete}
             hx-target="#notification"
             hx-swap="afterbegin"
+            hx-on--after-request={props.onclick}
             hx-indicator="#indicator"
             name="link_id"
             value={props.link_id}
-            onclick={props.onclick}
         >
             Delete
         </button>
@@ -81,7 +81,7 @@ const LinkItemCard: FC<{ link: LinkItemProps }> = (props) => {
                 </p>
                 <p style={LinkItemStyleButtonGroup}>
                     <ButtonEdit />
-                    <ButtonDelete link_id={props.link.link_id || 0} onclick="setTimeout(() => this.parentElement.parentElement.parentElement.remove(), 1000)" />
+                    <ButtonDelete link_id={props.link.link_id || 0} onclick="this.parentElement.parentElement.parentElement.remove()" />
                 </p>
             </footer>
         </article>
@@ -113,7 +113,7 @@ const LinkItemTableItem: FC<{ link: LinkItemProps }> = (props) => {
 
             <td style="display: flex; gap: 1rem;">
                 <ButtonEdit />
-                <ButtonDelete link_id={props.link.link_id || 0} onclick="setTimeout(() => this.parentElement.parentElement.remove(), 1000)" />
+                <ButtonDelete link_id={props.link.link_id || 0} onclick="this.parentElement.parentElement.remove()" />
             </td>
         </tr>
     );
