@@ -10,6 +10,22 @@
 - https://alpinejs.dev/start-here
 
 
+## Debug
+
+Log every event that htmx triggers:
+
+```javascript
+htmx.logAll();
+```
+
+In chromium base browser in console, what events 
+a DOM element is firing to use as a trigger:
+
+```javascript
+monitorEvents(htmx.find("#theElement"));
+```
+
+
 ## Example open graph protocol
 
 ```
