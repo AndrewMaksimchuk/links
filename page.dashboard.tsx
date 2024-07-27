@@ -36,7 +36,9 @@ export const Add = () => {
             hx-post={routes.linkAdd}
             hx-target="main"
             hx-swap="innerHTML"
-            hx-on--after-request="this.reset()">
+            hx-on--after-request="this.reset()"
+            hx-indicator="#indicator"
+        >
             <label for='link-add'>New link</label>
             <input
                 type="text"
@@ -73,6 +75,7 @@ const Search = () => {
                 hx-swap="innerHTML"
                 hx-on--before-request="searchClearButton?.remove()"
                 hx-on--after-request="this.reset()"
+                hx-indicator="#indicator"
                 role="search"
             >
                 <input

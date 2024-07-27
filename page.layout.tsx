@@ -1,5 +1,6 @@
 import type { FC } from 'hono/jsx'
 import { NotificationContainer } from './component.notification-container';
+import { Indicator } from './component.indicator';
 
 
 export const Layout: FC = ({ children }) => {
@@ -17,10 +18,11 @@ export const Layout: FC = ({ children }) => {
             </head>
 
             <body class="container">
+                <Indicator />
                 {children}
                 <footer></footer>
+                <NotificationContainer />
             </body>
-            <NotificationContainer />
         </html>
     );
 }

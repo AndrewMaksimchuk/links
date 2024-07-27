@@ -40,6 +40,7 @@ const ButtonDelete: FC<{ link_id: number, onclick: stringifiedFunction }> = (pro
             hx-delete={routes.linkDelete}
             hx-target="#notification"
             hx-swap="afterbegin"
+            hx-indicator="#indicator"
             name="link_id"
             value={props.link_id}
             onclick={props.onclick}
