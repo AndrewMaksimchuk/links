@@ -39,6 +39,7 @@ export const Add = () => {
             hx-on--after-request="this.reset()"
             hx-indicator="#indicator"
             hx-disabled-elt="#linkAddSubmitButton"
+            hx-vals="js:{created_at: Date.now()}"
         >
             <label for='link-add'>New link</label>
             <input
@@ -55,17 +56,9 @@ export const Add = () => {
                 Write ot paste link with https protocol
             </small>
             <SelectTags></SelectTags>
-            <input
-                type="number"
-                name="created_at"
-                id="linkAddCreatedAt"
-                value="0"
-                hidden
-            />
             <button
                 id="linkAddSubmitButton"
                 type="submit"
-                onmouseenter="linkAddCreatedAt.value = Date.now()"
             >
                 Add new link
             </button>
