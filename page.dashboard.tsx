@@ -243,14 +243,64 @@ export const Greeting: FC<{ name: string | undefined }> = (props) => {
 }
 
 
+const Theme = () => {
+    const data = `{
+        dataTheme: undefined, 
+        dataThemeValues: ['dark', 'light'],
+        get dataThemeInputValue() {
+            return 'dark' === this.dataTheme ? false : true; 
+        },
+        setThemeCookie() {
+            document.cookie = 'theme=' + this.dataTheme + ';SameSite=Strict;';
+        },
+        getThemeCookie() {
+            const theme = document.cookie?.includes('theme') ? document.cookie.split('=').at(1) : undefined;
+            return this.dataThemeValues.includes(theme) ? theme : undefined;
+        },
+        setTheme() {
+            this.setThemeCookie();
+            document.documentElement.setAttribute('data-theme', this.dataTheme);
+        },
+        toggleTheme() {
+            this.dataTheme = 'dark' === this.dataTheme ? 'light' : 'dark';
+            this.setTheme();
+        },
+            init() {
+                const cookieTheme = this.getThemeCookie();
+                if(cookieTheme) {
+                    this.dataTheme = cookieTheme;
+                    this.setTheme();
+                    return;
+                }
+                this.dataTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            },
+    }`
+
+    return (
+        <label>
+            <span>Dark</span>
+            <input
+                type="checkbox"
+                role="switch"
+                style="margin-inline: .5em;"
+                x-data={data}
+                x-on:click="toggleTheme"
+                x-model="dataThemeInputValue"
+                />
+            <span>Light</span>
+        </label>
+    );
+}
+
+
 const Header = () => {
     const user = useContext(UserContext)
     return (
         <header>
             <div style="display: flex; justify-content: space-between;">
                 <Greeting name={user?.name} />
-                {/* {user?.name ? <h1>Hello, {user.name}!</h1> : <h1>Hello, my friend!</h1>} */}
-                <div style="display: flex; gap: 1rem;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <Theme />
                     <Settings></Settings>
                     <Logout></Logout>
                 </div>
