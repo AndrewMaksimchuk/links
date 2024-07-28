@@ -153,11 +153,20 @@ const Logout = () => {
 }
 
 
-const onClickToggleSettingsView = "settingsView.toggleAttribute('open'); document.body.classList.toggle('modal-is-open')"
+const onClickToggleSettingsView = "settingsView.toggleAttribute('open'); document.body.classList.toggle('modal-is-open');"
+const historyGoToSettings = "history.pushState({}, '', '/settings');"
+const historyBackFromSettings = "history.back();"
 
 
 const Settings = () => {
-    return (<button class="outline secondary" onclick={onClickToggleSettingsView}>Settings</button>);
+    return (
+        <button 
+            class="outline secondary" 
+            onclick={onClickToggleSettingsView + historyGoToSettings} 
+        >
+            Settings
+        </button>
+    );
 }
 
 
@@ -215,21 +224,22 @@ export const SettingsModal = () => {
     return (
         <dialog id="settingsView">
             <article>
-                <header>
+                <header style="display: flex; align-items: center;">
                     <h2>Settings</h2>
-                </header>
-                <SettingsUser />
-                <SettingsTags />
-                <footer>
                     <button
                         class="outline"
-                        onclick={onClickToggleSettingsView}
+                        style="margin-left: auto;"
+                        onclick={onClickToggleSettingsView + historyBackFromSettings}
                         hx-post={routes.linkAddFormUpdate}
                         hx-target="#linkAddForm"
                         hx-swap="outerHTML"
-                    >
+                        >
                         Close
                     </button>
+                </header>
+                <SettingsUser />
+                <SettingsTags />
+                    <footer>
                 </footer>
             </article>
         </dialog>
@@ -239,7 +249,9 @@ export const SettingsModal = () => {
 
 export const Greeting: FC<{ name: string | undefined }> = (props) => {
     const name = props.name ?? "my friend"
-    return <h1 id="userGreeting">Hello, {name}!</h1>;
+    return <h1 id="userGreeting" style="margin: 0;">
+        <a href={routes.dashboard}>Hello, {name}!</a>
+    </h1>;
 }
 
 
@@ -294,10 +306,16 @@ const Theme = () => {
 
 
 const Header = () => {
+    const style = {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 'var(--pico-typography-spacing-vertical)',
+    }
     const user = useContext(UserContext)
     return (
         <header>
-            <div style="display: flex; justify-content: space-between;">
+            <div style={style}>
                 <Greeting name={user?.name} />
                 <div style="display: flex; align-items: center; gap: 1rem;">
                     <Theme />

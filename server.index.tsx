@@ -44,6 +44,7 @@ app.post(router.routes.tagDelete, router.tagDelete)
 app.post(router.routes.linkAddFormUpdate, router.linkAddFormUpdate)
 app.post(router.routes.userUpdateName, router.userUpdateName)
 app.post(router.routes.paginationViewUpdate, router.paginationViewUpdate)
+app.get(router.routes.settings, router.settings)
 app.notFound((ctx) => ctx.redirect(router.routes.main))
 
 export default {

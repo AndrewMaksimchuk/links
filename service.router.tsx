@@ -33,6 +33,7 @@ export const routes = {
   tagDelete: '/tag-delete',
   userUpdateName: '/user-update-name',
   paginationViewUpdate: '/pagination-view-update',
+  settings: '/settings',
 } as const
 
 
@@ -387,5 +388,11 @@ export class Router {
         {View}
       </Fragment>
     );
+  }
+
+
+  public settings = (ctx: Context) => {
+    Logger.log('Function: settings', __filename)
+    return this.dashboard(ctx);
   }
 }
