@@ -10,5 +10,5 @@ sqlite3 ./database.sqlite '.mode col' 'SELECT * FROM users'
 echo -e '\n[ SELECT * FROM tags ]'
 sqlite3 ./database.sqlite '.mode column' 'SELECT * FROM tags'
 
-echo -e '\n[ SELECT * FROM vlinks ]'
-sqlite3 ./database.sqlite '.mode column' 'select * from vlinks'
+# echo -e '\n[ SELECT * FROM vlinks ]'
+# sqlite3 ./database.sqlite '.mode column' 'select * from vlinks'
