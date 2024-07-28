@@ -42,6 +42,7 @@ const ButtonDelete: FC<{ link_id: number, onclick: stringifiedFunction }> = (pro
             hx-swap="afterbegin"
             hx-on--after-request={props.onclick}
             hx-indicator="#indicator"
+            hx-disabled-elt="this"
             name="link_id"
             value={props.link_id}
         >

@@ -38,6 +38,7 @@ export const Add = () => {
             hx-swap="innerHTML"
             hx-on--after-request="this.reset()"
             hx-indicator="#indicator"
+            hx-disabled-elt="#linkAddSubmitButton"
         >
             <label for='link-add'>New link</label>
             <input
@@ -61,7 +62,13 @@ export const Add = () => {
                 value="0"
                 hidden
             />
-            <button type="submit" onmouseenter="linkAddCreatedAt.value = Date.now()">Add new link</button>
+            <button
+                id="linkAddSubmitButton"
+                type="submit"
+                onmouseenter="linkAddCreatedAt.value = Date.now()"
+            >
+                Add new link
+            </button>
         </form>
     );
 }
@@ -76,6 +83,7 @@ const Search = () => {
                 hx-on--before-request="searchClearButton?.remove()"
                 hx-on--after-request="this.reset()"
                 hx-indicator="#indicator"
+                hx-disabled-elt="#searchFormSubmitButton"
                 role="search"
             >
                 <input
@@ -86,7 +94,12 @@ const Search = () => {
                     minlength={2}
                     required
                     autofocus />
-                <button type="submit">Search</button>
+                <button
+                    id="searchFormSubmitButton"
+                    type="submit"
+                >
+                    Search
+                </button>
             </form>
             <section id="searchResult"></section>
         </Fragment>
