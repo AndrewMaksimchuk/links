@@ -14,14 +14,18 @@ export const UserContext = createContext<User | null>(null)
 export const LinksContext = createContext<Link[] | null>(null)
 
 
-const SelectTags = () => {
+export const SelectTags: FC<{
+        styleLabel?: Record<string, string>, 
+        styleSelect?: Record<string, string>, 
+        selectedTag?: number 
+    }> = (props) => {
     const tags = useContext(TagsContext)
     const View = tags.length ? (
         <Fragment>
-            <label for="tags">Select tags</label>
-            <select id="tags" name="tags" required aria-label="Select">
-                <option disabled selected value={NaN}>Select one from list:</option>
-                {tags.map((tag) => <option value={tag.tag_id}>{tag.name}</option>)}
+            <label for="tags" style={props.styleLabel}>Select tags</label>
+            <select id="tags" name="tags" required aria-label="Select" style={props.styleSelect}>
+                {undefined === props.selectedTag ? <option disabled selected value={NaN}>Select one:</option> : null}
+                {tags.map((tag) => <option value={tag.tag_id} selected={tag.tag_id === props.selectedTag}>{tag.name}</option>)}
             </select>
         </Fragment>
     ) : <Fragment></Fragment>

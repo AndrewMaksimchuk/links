@@ -1,13 +1,14 @@
 # Links
 
-- [https://ogp.me/](The Open Graph protocol)
-
 
 ## Resources
 
-- https://picocss.com/docs
-- https://htmx.org/reference/#attributes
-- https://alpinejs.dev/start-here
+- [The Open Graph protocol](https://ogp.me/)
+- [Pico.css](https://picocss.com/docs)
+- [HTMX](https://htmx.org/reference/#attributes)
+- [alpine.js](https://alpinejs.dev/start-here)
+- [hono](https://hono.dev/docs/guides/jsx)
+- [bun](https://bun.sh/docs/api/sqlite)
 
 
 ## Debug
@@ -24,6 +25,8 @@ a DOM element is firing to use as a trigger:
 ```javascript
 monitorEvents(htmx.find("#theElement"));
 ```
+
+[List of supported URLs: **routes**](service.router.tsx#L21)  
 
 
 ## Example open graph protocol

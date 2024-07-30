@@ -2,7 +2,7 @@ import type { FC, PropsWithChildren } from 'hono/jsx'
 import type { Link } from "./service.link"
 import { Fragment, useContext } from "hono/jsx"
 import { routes } from './service.router'
-import { LinksContext } from './page.dashboard'
+import { LinksContext, SelectTags } from './page.dashboard'
 
 
 type LinkItemProps = Partial<Link>
@@ -24,9 +24,20 @@ const Tag: FC<{ name: string, color?: string }> = (props) => {
 }
 
 
-const ButtonEdit = () => {
+const ButtonEdit: FC<{ linkId: number }> = (props) => {
+    const query = `{"linkId": "${props.linkId}"}`
     return (
-        <button type="button" style='margin: 0; padding: 0.125rem 0.25rem;' className='outline'>Edit</button>
+        <button
+            type="button"
+            style='margin: 0; padding: 0.125rem 0.25rem;'
+            className='outline'
+            hx-get={routes.linkEdit}
+            hx-vals={query}
+            hx-target={"#l" + props.linkId}
+            hx-swap="outerHTML"
+        >
+            Edit
+        </button>
     );
 }
 
@@ -68,8 +79,8 @@ const LinkItemCard: FC<{ link: LinkItemProps }> = (props) => {
     }
 
     return (
-        <article>
-            {props.link.title ? <header>{props.link.title}</header> : null}
+        <article id={'l' + String(props.link.link_id)}>
+            <header>{props.link.title ? props.link.title : "-"}</header>
             <p style={LinkUrlStyle}>
                 <a href={props.link.url} target='_blank' title={props.link.url}>
                     {props.link.url}
@@ -81,7 +92,7 @@ const LinkItemCard: FC<{ link: LinkItemProps }> = (props) => {
                     {'string' === typeof props.link.name ? <Tag name={props.link.name} color={props.link.color}></Tag> : null}
                 </p>
                 <p style={LinkItemStyleButtonGroup}>
-                    <ButtonEdit />
+                    {props.link.link_id ? <ButtonEdit linkId={props.link.link_id} /> : null}
                     <ButtonDelete link_id={props.link.link_id || 0} onclick="this.parentElement.parentElement.parentElement.remove()" />
                 </p>
             </footer>
@@ -100,7 +111,7 @@ const LinkItemCardContainer = (props: PropsWithChildren) => {
 
 const LinkItemTableItem: FC<{ link: LinkItemProps }> = (props) => {
     return (
-        <tr>
+        <tr id={'l' + String(props.link.link_id)}>
             <th scope="row">{props.link.title || "-"}</th>
             <td style="text-wrap: nowrap; max-width: 30ch; overflow: hidden; text-overflow: ellipsis;">
                 <a href={props.link.url} target='_blank' title={props.link.url}>
@@ -113,7 +124,7 @@ const LinkItemTableItem: FC<{ link: LinkItemProps }> = (props) => {
             </td>
 
             <td style="display: flex; gap: 1rem;">
-                <ButtonEdit />
+                {props.link.link_id ? <ButtonEdit linkId={props.link.link_id} /> : null}
                 <ButtonDelete link_id={props.link.link_id || 0} onclick="this.parentElement.parentElement.remove()" />
             </td>
         </tr>
@@ -148,5 +159,151 @@ export const Links: FC<{ view?: "table" }> = (props) => {
         <Fragment>
             {View}
         </Fragment>
+    );
+}
+
+
+export const LinkOne: FC<{ link: Link, view?: "table" | string }> = (props) => {
+    const ViewOfLinkItem = props.view ? LinkItemTableItem : LinkItemCard
+    return (<ViewOfLinkItem link={props.link}></ViewOfLinkItem>);
+}
+
+
+const LinkFormEditButtonStyle = {
+    margin: '0',
+    padding: '0.125rem 0.25rem',
+}
+
+
+const LinkFormEditButtonUpdate: FC<{ style?: Record<string, string> }> = (props) => {
+    return (
+        <button
+            type="submit"
+            className='outline'
+            style={{ ...LinkFormEditButtonStyle, ...props.style }}
+        >
+            Update
+        </button>
+    );
+}
+
+
+const LinkFormEditButtonCancel: FC<{
+    linkId?: number,
+    htmlTarget: string,
+    style?: Record<string, string>
+}> = (props) => {
+    return (
+        <button
+            type="button"
+            className='outline'
+            style={{ ...LinkFormEditButtonStyle, ...props.style }}
+            name="linkId"
+            value={props.linkId}
+            hx-post={routes.linkGet}
+            hx-swap="outerHTML"
+            hx-target={"closest " + props.htmlTarget}
+        >
+            Cancel
+        </button>
+    );
+}
+
+
+const LinkFormEditCard: FC<{ link: LinkItemProps }> = (props) => {
+    const LinkItemStyleButtonGroup = {
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'right',
+        gap: '1rem',
+    }
+
+    const LinkUrlStyle = {
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+    }
+
+    const include = JSON.stringify({ link_id: props.link.link_id })
+
+    return (
+        <article>
+            <form
+                hx-patch={routes.linkUpdate}
+                hx-swap="outerHTML"
+                hx-target="closest article"
+                hx-vals={include}
+            >
+                <header>
+                    <input required type="text" name="title" id="updateLinkTitle" value={props.link.title ?? ""} />
+                </header>
+                <p style={LinkUrlStyle}>
+                    <input required type="text" name="url" id="updateLinkUrl" value={props.link.url} />
+                </p>
+                <footer>
+                    <p style='text-align: right;'>{(new Date(props.link.created_at || Date.now())).toDateString()}</p>
+                    <p style="text-align: right;">
+                        <SelectTags styleLabel={{ display: 'none' }} styleSelect={{ margin: '0' }} selectedTag={props.link.tag_id} />
+                    </p>
+                    <p style={LinkItemStyleButtonGroup}>
+                        <LinkFormEditButtonUpdate />
+                        <LinkFormEditButtonCancel
+                            linkId={props.link.link_id}
+                            htmlTarget='article'
+                            style={{ width: '100%' }}
+                        />
+                    </p>
+                </footer>
+            </form>
+        </article>
+    );
+}
+
+
+const LinkFormEditTable: FC<{ link: Link }> = (props) => {
+    const styleInput = {
+        margin: '0',
+    }
+
+    const include = JSON.stringify({ link_id: props.link.link_id })
+
+    return (
+        <tr style="height: 100%;">
+            <form
+                hx-patch={routes.linkUpdate}
+                hx-swap="outerHTML"
+                hx-target="closest tr"
+                hx-vals={include}
+            >
+                <th scope="row">
+                    <input required style={styleInput} type="text" name="title" id="updateLinkTitle" value={props.link.title ?? ""} />
+                </th>
+                <td style="text-wrap: nowrap; max-width: 30ch; overflow: hidden; text-overflow: ellipsis;">
+                    <input required style={styleInput} type="text" name="url" id="updateLinkUrl" value={props.link.url} />
+                </td>
+                <td style="text-wrap: nowrap;">
+                    {(new Date(props.link.created_at)).toDateString()}
+                </td>
+                <td>
+                    <SelectTags styleLabel={{ display: 'none' }} styleSelect={{ margin: '0' }} selectedTag={props.link.tag_id} />
+                </td>
+                <td style="display: flex; gap: 1rem; height: 100%;">
+                    <LinkFormEditButtonUpdate />
+                    <LinkFormEditButtonCancel
+                        linkId={props.link.link_id}
+                        htmlTarget='tr'
+                    />
+                </td>
+            </form>
+        </tr>
+    );
+}
+
+
+export const LinkFormEdit: FC<{ view: string, link: Link }> = (props) => {
+    const View = props.view ? LinkFormEditTable : LinkFormEditCard
+    return (
+        <View link={props.link} />
     );
 }

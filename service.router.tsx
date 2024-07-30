@@ -13,7 +13,7 @@ import { Logger } from "./service.logger"
 import { Layout } from "./page.layout"
 import { Index } from "./page.index"
 import { Notification, type NotificationProps } from "./component.notification"
-import { Links } from "./component.links"
+import { LinkFormEdit, LinkOne, Links } from "./component.links"
 import { TagNotification } from "./component.tag-notification"
 import { Pagination } from "./component.pagination"
 
@@ -27,6 +27,8 @@ export const routes = {
   linkAdd: '/link-add',
   linkDelete: '/link-delete',
   linkEdit: '/link-edit',
+  linkUpdate: '/link-update',
+  linkGet: '/link-get',
   linkChangeView: '/link-change-view',
   linkAddFormUpdate: '/link-add-form-update',
   tagCreate: '/tag-create',
@@ -259,10 +261,68 @@ export class Router {
   }
 
 
-  public linkEdit(ctx: Context) {
+  public linkEdit = async (ctx: Context) => {
     Logger.log('Function: linkEdit', __filename)
-    return ctx.html('Edit link!');
+    const linkViewState = getCookie(ctx, 'linkView') ?? ''
+    const linkId = ctx.req.query('linkId')
+    const link = this.serviceLink.getLink(Number(linkId))
+
+    if (null === link) {
+      return ctx.html(<Notification status="error" body="Can`t get link!" />);
+    }
+
+    const userId = await this.getUserId(ctx)
+
+    if (null == userId) {
+      return ctx.html(<TagNotification text="Can`t create tag!" />);
+    }
+
+    const tags = this.serviceTag.getTags(userId)
+    TagsContext.values = [tags]
+
+    return ctx.html(
+      <LinkFormEdit view={linkViewState} link={link} />
+    );
   }
+
+
+  public linkUpdate = async (ctx: Context) => {
+    Logger.log('Function: linkUpdate', __filename)
+    const body = await ctx.req.parseBody<Stringify<Pick<Link, "title" | "url" | "tags" | "link_id" | "description" | "site_name">>>()
+    const userId = await this.getUserId(ctx)
+
+    if (null === userId) {
+      return ctx.html(<Notification status="error" body="Can`t get you!" />);
+    }
+
+    const link = this.serviceLink.updateLink({ ...body, user_id: String(userId) })
+
+    if (null === link) {
+      return ctx.html(<Notification status="error" body="Can`t get link!" />);
+    }
+
+    const linkViewState = getCookie(ctx, 'linkView') ?? ''
+    return ctx.html(
+      <LinkOne link={link} view={linkViewState} />
+    );
+  }
+
+
+  public linkGet = async (ctx: Context) => {
+    Logger.log('Function: linkGet', __filename)
+    const body = await ctx.req.parseBody<{ linkId: string }>()
+    const link = this.serviceLink.getLink(Number(body.linkId))
+
+    if (null === link) {
+      return ctx.html(<Notification status="error" body="Can`t get link!" />);
+    }
+
+    const linkViewState = getCookie(ctx, 'linkView') ?? ''
+    return ctx.html(
+      <LinkOne link={link} view={linkViewState} />
+    );
+  }
+
 
   public linkDelete = async (ctx: Context) => {
     Logger.log('Function: linkDelete', __filename)

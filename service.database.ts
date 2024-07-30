@@ -23,6 +23,9 @@ export type LinkDatabase = {
 } & LinkOGP
 
 
+export type VLinkDatabase = Pick<LinkDatabase, "link_id" | "user_id" | "url" | "title" | "description" | "site_name" | "tags">
+
+
 export type UserDatabase = {
     user_id: number
     telephone: string
@@ -98,15 +101,28 @@ export class ServiceDatabase {
 
     private createTableLinksVirtual() {
         Logger.log('Function: createTableLinksVirtual', __filename)
-        const sqlQuery = `CREATE VIRTUAL TABLE IF NOT EXISTS ${this.tables.vlinks} USING fts5(user_id, url, title, description, site_name, tags);`
+        const sqlQuery = `CREATE VIRTUAL TABLE IF NOT EXISTS ${this.tables.vlinks} USING fts5(link_id, user_id, url, title, description, site_name, tags);`
         this.database.query(sqlQuery).run()
     }
 
 
-    private insertIntoLinksVirtual({ user_id, url, title, description, site_name, tags }: LinkDatabase) {
+    private insertIntoLinksVirtual({ link_id, user_id, url, title, description, site_name, tags }: VLinkDatabase) {
         Logger.log('Function: insertIntoLinksVirtual', __filename)
-        const sqlQuery = `INSERT INTO ${this.tables.vlinks} VALUES (?, ?, ?, ?, ?, ?);`
-        this.database.query(sqlQuery).run(user_id, url, title, description, site_name, tags)
+        const sqlQuery = `INSERT INTO ${this.tables.vlinks} VALUES (?, ?, ?, ?, ?, ?, ?);`
+        this.database.query(sqlQuery).run(link_id, user_id, url, title, description, site_name, tags)
+    }
+
+
+    private updateLinkVirtual({ url, title, tags, link_id }: VLinkDatabase) {
+        Logger.log('Function: updateLinksVirtual', __filename)
+        const sqlQuery = `
+            UPDATE ${this.tables.vlinks} 
+            SET 
+                url = ?,
+                title = ?,
+                tags = ? 
+            WHERE link_id = ?;`
+        this.database.run(sqlQuery, [url, title, tags, link_id])
     }
 
 
@@ -186,6 +202,14 @@ export class ServiceDatabase {
     }
 
 
+    public getLinkByIdWithTag(link_id: number) {
+        Logger.log('Function: getLinkByIdWithTag', __filename)
+        const sqlQuery = `SELECT * FROM ${this.tables.links} INNER JOIN ${this.tables.tags} ON ${this.tables.tags}.tag_id = ${this.tables.links}.tags WHERE ${this.tables.links}.link_id = $linkId;`
+        const query = this.database.query<LinkDatabase & TagDatabase, { $linkId: number }>(sqlQuery)
+        return query.get({ $linkId: link_id });
+    }
+
+
     public getLinksUser(userId: number) {
         Logger.log('Function: getLinksUser', __filename)
         const sqlQuery = `SELECT * FROM ${this.tables.links} INNER JOIN ${this.tables.tags} ON ${this.tables.tags}.tag_id = ${this.tables.links}.tags WHERE ${this.tables.links}.user_id = $userId;`
@@ -198,8 +222,8 @@ export class ServiceDatabase {
         Logger.log('Function: createLink', __filename)
         const sqlQuery = `INSERT INTO ${this.tables.links} (user_id, url, created_at, tags) 
                           VALUES (?, ?, ?, ?);`
-        this.database.run(sqlQuery, [link.user_id, link.url, link.created_at, link.tags])
-        const newCreatedLink = this.getLink(link.url);
+        const res = this.database.run(sqlQuery, [link.user_id, link.url, link.created_at, link.tags]) as unknown as { lastInsertRowid: number, changes: number }
+        const newCreatedLink = this.getLinkById(res.lastInsertRowid)
 
         if (null !== newCreatedLink) {
             this.insertIntoLinksVirtual(newCreatedLink)
@@ -209,11 +233,12 @@ export class ServiceDatabase {
     }
 
 
-    private deleteVLink(url: string, userId: number) {
+    private deleteVLink(linkId: number) {
         Logger.log('Function: deleteVLink', __filename)
-        const sqlQuery = `DELETE FROM ${this.tables.vlinks} WHERE url = ? AND user_id = ?;`
-        this.database.run(sqlQuery, [url, userId])
+        const sqlQuery = `DELETE FROM ${this.tables.vlinks} WHERE link_id = ?;`
+        this.database.run(sqlQuery, [linkId])
     }
+
 
     public deleteLink(linkId: number) {
         Logger.log('Function: deleteLink', __filename)
@@ -225,7 +250,7 @@ export class ServiceDatabase {
 
         const sqlQuery = `DELETE FROM ${this.tables.links} WHERE link_id = ?;`
         this.database.run(sqlQuery, [linkId])
-        this.deleteVLink(linkToDelete.url, linkToDelete.user_id)
+        this.deleteVLink(linkId)
         return !Boolean(this.getLinkById(linkId));
     }
 
@@ -238,6 +263,15 @@ export class ServiceDatabase {
             WHERE ${this.tables.links}.url = ? 
             AND ${this.tables.links}.user_id = ?;`
         return urls.map((item) => this.database.prepare<LinkDatabase & TagDatabase, [string, number]>(sqlQuery).get(item.url, userId));
+    }
+
+
+    public updateLink(link: VLinkDatabase) {
+        Logger.log('Function: updateLink', __filename)
+        const sqlQuery = `UPDATE ${this.tables.links} SET title = ?, url = ?, tags = ? WHERE link_id = ?;`
+        this.database.run(sqlQuery, [link.title, link.url, link.tags, link.link_id])
+        this.updateLinkVirtual(link)
+        return this.getLinkByIdWithTag(link.link_id);
     }
 
 
