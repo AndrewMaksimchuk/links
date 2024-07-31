@@ -16,6 +16,7 @@ import { Notification, type NotificationProps } from "./component.notification"
 import { LinkFormEdit, LinkOne, Links } from "./component.links"
 import { TagNotification } from "./component.tag-notification"
 import { Pagination } from "./component.pagination"
+import { $ } from "bun"
 
 
 export const routes = {
@@ -34,6 +35,7 @@ export const routes = {
   tagCreate: '/tag-create',
   tagDelete: '/tag-delete',
   userUpdateName: '/user-update-name',
+  userDataDownload: '/user-data-download',
   paginationViewUpdate: '/pagination-view-update',
   settings: '/settings',
 } as const
@@ -419,6 +421,41 @@ export class Router {
         <Notification status={notification.status} body={notification.body}></Notification>
       </Fragment>
     );
+  }
+
+
+  public userDataDownload = async (ctx: Context) => {
+    const userId = await this.getUserId(ctx)
+
+    if (null === userId) {
+      return ctx.html(<Notification status="error" body="Can`t get you!" />);
+    }
+
+    const tables = ['users', 'tags', 'links', 'vlinks']
+    const processingCsv = tables.map((table) => $`sqlite3 -csv -header ./database.sqlite "select * from ${table}  where user_id = ${userId};" > /tmp/${table}.csv`)
+    const execResult = await Promise.all(processingCsv)
+    const isExportFail = execResult.filter((shellOutput) => 0 !== shellOutput.exitCode).length
+
+    if (isExportFail) {
+      return ctx.html(<Notification status="error" body="Can`t get your data!" />);
+    }
+
+    $.cwd("/tmp")
+    const processingArchive = await $`tar -czf user-data.tar.gz users.csv tags.csv links.csv vlinks.csv`
+
+    if (0 !== processingArchive.exitCode) {
+      return ctx.html(<Notification status="error" body="Can`t create archive!" />);
+    }
+
+    const archive = Bun.file('/tmp/user-data.tar.gz')
+
+    if (! await archive.exists()) {
+      return ctx.html(<Notification status="error" body="Can`t get archive!" />);
+    }
+
+    const response = new Response(archive)
+    response.headers.set('Content-Disposition', 'attachment; filename="user-data.tar.gz"')
+    return response;
   }
 
 

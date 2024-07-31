@@ -177,7 +177,7 @@ const Settings = () => {
 export const SettingsUser = () => {
     const user = useContext(UserContext)
     return (
-        <Fragment>
+        <div>
             <form
                 hx-post={routes.userUpdateName}
                 hx-target="this"
@@ -196,7 +196,12 @@ export const SettingsUser = () => {
                     placeholder={user?.name ?? "Taras"} />
                 <input type="submit" value="Update name" />
             </form>
-        </Fragment>
+            <a 
+                href={routes.userDataDownload}
+            >
+                Download your data
+            </a>
+        </div>
     );
 }
 

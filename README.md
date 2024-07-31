@@ -27,6 +27,7 @@ monitorEvents(htmx.find("#theElement"));
 ```
 
 [List of supported URLs: **routes**](service.router.tsx#L21)  
+[Commands for import user data to database: **import.sql.bash**](import.sql.bash)
 
 
 ## Example open graph protocol
