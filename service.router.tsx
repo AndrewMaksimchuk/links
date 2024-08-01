@@ -233,7 +233,7 @@ export class Router {
       return ctx.html(<Notification status="error" body="Can`t get user!"></Notification>)
     }
 
-    const isNewLinkCreate = this.serviceLink.setNewLink(formBody, user.user_id)
+    const isNewLinkCreate = await this.serviceLink.setNewLink(formBody, user.user_id)
     const userLinks = "number" === typeof user.user_id ? await this.getUserLinks(user.user_id) : []
     LinksContext.values = [userLinks]
     const linkViewState = getCookie(ctx, 'linkView') ?? ''

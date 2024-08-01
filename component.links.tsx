@@ -75,14 +75,41 @@ const LinkItemCard: FC<{ link: LinkItemProps }> = (props) => {
     const LinkUrlStyle = {
         overflow: 'hidden',
         textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
+        // whiteSpace: 'nowrap',
     }
 
+    const articleStyle = {
+        display: 'grid',
+        gridTemplateRows: '115px 1fr auto',
+    }
+
+    const HeaderStyle = {
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        display: '-webkit-box',
+        '-webkit-line-clamp': '3',
+        '-webkit-box-orient': 'vertical',
+    }
+
+    const title = props.link.title ? props.link.title : '-'
+
     return (
-        <article id={'l' + String(props.link.link_id)}>
-            <header>{props.link.title ? props.link.title : "-"}</header>
+        <article
+            id={'l' + String(props.link.link_id)}
+            style={articleStyle}
+        >
+            <header
+                style={HeaderStyle}
+                title={title}
+            >
+                {title}
+            </header>
             <p style={LinkUrlStyle}>
-                <a href={props.link.url} target='_blank' title={props.link.url}>
+                <a
+                    href={props.link.url}
+                    target='_blank'
+                    title={props.link.url}
+                >
                     {props.link.url}
                 </a>
             </p>
@@ -112,7 +139,7 @@ const LinkItemCardContainer = (props: PropsWithChildren) => {
 const LinkItemTableItem: FC<{ link: LinkItemProps }> = (props) => {
     return (
         <tr id={'l' + String(props.link.link_id)}>
-            <th scope="row">{props.link.title || "-"}</th>
+            <th scope="row" style="max-width: 30ch;">{props.link.title || "-"}</th>
             <td style="text-wrap: nowrap; max-width: 30ch; overflow: hidden; text-overflow: ellipsis;">
                 <a href={props.link.url} target='_blank' title={props.link.url}>
                     {props.link.url}

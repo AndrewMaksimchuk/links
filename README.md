@@ -3,12 +3,13 @@
 
 ## Resources
 
-- [The Open Graph protocol](https://ogp.me/)
-- [Pico.css](https://picocss.com/docs)
-- [HTMX](https://htmx.org/reference/#attributes)
-- [alpine.js](https://alpinejs.dev/start-here)
-- [hono](https://hono.dev/docs/guides/jsx)
 - [bun](https://bun.sh/docs/api/sqlite)
+- [hono](https://hono.dev/docs/guides/jsx)
+- [HTMX](https://htmx.org/reference/#attributes)
+- [Pico.css](https://picocss.com/docs)
+- [alpine.js](https://alpinejs.dev/start-here)
+- [The Open Graph protocol](https://ogp.me/)
+- [open-graph-scraper](https://www.npmjs.com/package/open-graph-scraper)
 
 
 ## Debug

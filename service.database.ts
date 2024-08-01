@@ -218,11 +218,21 @@ export class ServiceDatabase {
     }
 
 
-    public createLink(link: Pick<LinkDatabase, "user_id" | "url" | "created_at" | "tags">) {
+    public createLink(link: Pick<LinkDatabase, "user_id" | "url" | "created_at" | "tags" | "title" | "description" | "locale" | "site_name">) {
         Logger.log('Function: createLink', __filename)
-        const sqlQuery = `INSERT INTO ${this.tables.links} (user_id, url, created_at, tags) 
-                          VALUES (?, ?, ?, ?);`
-        const res = this.database.run(sqlQuery, [link.user_id, link.url, link.created_at, link.tags]) as unknown as { lastInsertRowid: number, changes: number }
+        const sqlQuery = `INSERT INTO ${this.tables.links} (user_id, url, created_at, tags, title, description, locale, site_name) 
+                          VALUES (?, ?, ?, ?, ?, ?, ?, ?);`
+        const values = [
+            link.user_id,
+            link.url,
+            link.created_at,
+            link.tags,
+            link.title,
+            link.description,
+            link.locale,
+            link.site_name,
+        ]
+        const res = this.database.run(sqlQuery, values) as unknown as { lastInsertRowid: number, changes: number }
         const newCreatedLink = this.getLinkById(res.lastInsertRowid)
 
         if (null !== newCreatedLink) {

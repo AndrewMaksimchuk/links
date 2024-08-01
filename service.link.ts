@@ -1,6 +1,7 @@
 import type { LinkDatabase, ServiceDatabase, TagDatabase, VLinkDatabase, } from "./service.database"
 import type { Prettify, Stringify } from "./utility.types"
 import { Logger } from "./service.logger"
+import { ServiceOGP } from "./service.ogp"
 
 
 export type Link = Prettify<LinkDatabase & TagDatabase>
@@ -9,17 +10,28 @@ export type Link = Prettify<LinkDatabase & TagDatabase>
 export class ServiceLink {
     private database: ServiceDatabase
 
-
     constructor(database: ServiceDatabase) {
         Logger.log('Function: constructor, class ServiceLink', __filename)
         this.database = database
     }
 
 
-    public setNewLink(link: Prettify<Stringify<Pick<Link, "url" | "created_at"> & { tags: string }>>, userId: number) {
+    public setNewLink = async (link: Prettify<Stringify<Pick<Link, "url" | "created_at"> & { tags: string }>>, userId: number) => {
         Logger.log('Function: setNewLink', __filename)
         const tags = "NaN" === link.tags ? null : link.tags
-        return this.database.createLink({ user_id: userId, url: link.url, created_at: Number(link.created_at) || 0, tags });
+        const metaData = await ServiceOGP.getMeta(link.url)
+
+        const newLink = {
+            user_id: userId,
+            url: link.url,
+            created_at: Number(link.created_at) || 0,
+            tags,
+            title: metaData?.ogTitle ?? '',
+            description: metaData?.ogDescription ?? '',
+            locale: metaData?.ogLocale ?? '',
+            site_name: metaData?.ogSiteName ?? '',
+        }
+        return this.database.createLink(newLink);
     }
 
 
