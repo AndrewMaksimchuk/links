@@ -276,6 +276,16 @@ export class ServiceDatabase {
     }
 
 
+    public getLinksById(ids: { link_id: number }[]) {
+        Logger.log('Function: getLinksById', __filename)
+        const sqlQuery = `SELECT * FROM ${this.tables.links} 
+            INNER JOIN ${this.tables.tags} 
+            ON ${this.tables.tags}.tag_id = ${this.tables.links}.tags 
+            WHERE ${this.tables.links}.link_id = ?;`
+        return ids.map((link) => this.database.prepare<LinkDatabase & TagDatabase, [number]>(sqlQuery).get(link.link_id));
+    }
+
+
     public updateLink(link: VLinkDatabase) {
         Logger.log('Function: updateLink', __filename)
         const sqlQuery = `UPDATE ${this.tables.links} SET title = ?, url = ?, tags = ? WHERE link_id = ?;`
@@ -317,7 +327,7 @@ export class ServiceDatabase {
 
     public searchTextLinks(text: string, userId: number) {
         Logger.log('Function: searchTextLinks', __filename)
-        const sqlQuery = `SELECT url FROM ${this.tables.vlinks} WHERE ${this.tables.vlinks} = ? AND user_id = ?;`
-        return this.database.query<{ url: string }, [string, number]>(sqlQuery).all(text + "*", userId);
+        const sqlQuery = `SELECT link_id FROM ${this.tables.vlinks} WHERE ${this.tables.vlinks} = ? AND user_id = ?;`
+        return this.database.query<{ link_id: number }, [string, number]>(sqlQuery).all(text + "*", userId);
     }
 }

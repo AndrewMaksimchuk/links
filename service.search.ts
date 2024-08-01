@@ -15,6 +15,6 @@ export class ServiceSearch {
     public search(text: string, userId: number) {
         Logger.log('Function: search', __filename)
         const searchUrls = this.database.searchTextLinks(text, userId)
-        return this.database.getLinksByUrls(searchUrls, userId);
+        return this.database.getLinksById(searchUrls);
     }
 }
