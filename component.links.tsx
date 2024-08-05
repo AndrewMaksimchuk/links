@@ -3,6 +3,7 @@ import type { Link } from "./service.link"
 import { Fragment, useContext } from "hono/jsx"
 import { routes } from './service.router'
 import { LinksContext, SelectTags } from './page.dashboard'
+import type { View } from './service.link-view'
 
 
 type LinkItemProps = Partial<Link>
@@ -177,11 +178,11 @@ const LinkItemTable = (props: PropsWithChildren) => {
     );
 }
 
-export const Links: FC<{ view?: "table" }> = (props) => {
+export const Links: FC<{ view: View }> = (props) => {
     const links = useContext(LinksContext) ?? []
-    const ViewOfLinkItem = props.view ? LinkItemTableItem : LinkItemCard
+    const ViewOfLinkItem = props.view === 'table' ? LinkItemTableItem : LinkItemCard
     const RenderedLinkItem = links.map((linkData) => <ViewOfLinkItem link={linkData}></ViewOfLinkItem>)
-    const View = props.view ? <LinkItemTable>{RenderedLinkItem}</LinkItemTable> : <LinkItemCardContainer>{RenderedLinkItem}</LinkItemCardContainer>
+    const View = props.view === "table" ? <LinkItemTable>{RenderedLinkItem}</LinkItemTable> : <LinkItemCardContainer>{RenderedLinkItem}</LinkItemCardContainer>
     return (
         <Fragment>
             {View}
@@ -190,8 +191,8 @@ export const Links: FC<{ view?: "table" }> = (props) => {
 }
 
 
-export const LinkOne: FC<{ link: Link, view?: "table" | string }> = (props) => {
-    const ViewOfLinkItem = props.view ? LinkItemTableItem : LinkItemCard
+export const LinkOne: FC<{ link: Link, view: View }> = (props) => {
+    const ViewOfLinkItem = props.view === 'table' ? LinkItemTableItem : LinkItemCard
     return (<ViewOfLinkItem link={props.link}></ViewOfLinkItem>);
 }
 
@@ -328,8 +329,8 @@ const LinkFormEditTable: FC<{ link: Link }> = (props) => {
 }
 
 
-export const LinkFormEdit: FC<{ view: string, link: Link }> = (props) => {
-    const View = props.view ? LinkFormEditTable : LinkFormEditCard
+export const LinkFormEdit: FC<{ view: View, link: Link }> = (props) => {
+    const View = props.view === 'table' ? LinkFormEditTable : LinkFormEditCard
     return (
         <View link={props.link} />
     );

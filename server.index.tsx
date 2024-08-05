@@ -9,6 +9,7 @@ import { ServiceLink } from './service.link'
 import { ServiceTag } from './service.tag'
 import { ServiceSearch } from './service.search'
 import { ServicePagination } from './service.pagination'
+import { ServiceLinkView } from './service.link-view'
 
 const app = new Hono({
   strict: true,
@@ -21,6 +22,7 @@ const router = new Router(
   new ServiceTag(ServiceDatabase.instance),
   new ServiceSearch(ServiceDatabase.instance),
   new ServicePagination(),
+  new ServiceLinkView(),
 )
 
 app.use(logger())

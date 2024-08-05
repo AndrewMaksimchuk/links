@@ -5,7 +5,8 @@ import type { ServiceLink, Link } from "./service.link"
 import type { Stringify, Prettify } from "./utility.types"
 import type { ServiceSearch } from "./service.search"
 import type { ServicePagination } from "./service.pagination"
-import { getCookie, setCookie } from 'hono/cookie'
+import type { ServiceLinkView } from "./service.link-view"
+import { $ } from "bun"
 import { Fragment } from "hono/jsx"
 import { Add, Dashboard, Greeting, LinksContext, LinksCounter, SettingsUser, TagsContext, UserContext } from './page.dashboard'
 import { ServiceTag, type Tag } from "./service.tag"
@@ -13,10 +14,9 @@ import { Logger } from "./service.logger"
 import { Layout } from "./page.layout"
 import { Index } from "./page.index"
 import { Notification, type NotificationProps } from "./component.notification"
-import { LinkFormEdit, LinkOne, Links } from "./component.links"
+import { LinkFormEdit, LinkOne } from "./component.links"
 import { TagNotification } from "./component.tag-notification"
 import { Pagination } from "./component.pagination"
-import { $ } from "bun"
 
 
 export const routes = {
@@ -48,15 +48,25 @@ export class Router {
   private serviceTag: ServiceTag
   private serviceSearch: ServiceSearch
   private servicePagination: ServicePagination
+  private serviceLinkView: ServiceLinkView
 
 
-  constructor(ServiceUser: ServiceUser, ServiceAuth: ServiceAuth, ServiceLink: ServiceLink, ServiceTag: ServiceTag, ServiceSearch: ServiceSearch, ServicePagination: ServicePagination) {
+  constructor(
+    ServiceUser: ServiceUser,
+    ServiceAuth: ServiceAuth,
+    ServiceLink: ServiceLink,
+    ServiceTag: ServiceTag,
+    ServiceSearch: ServiceSearch,
+    ServicePagination: ServicePagination,
+    ServiceLinkView: ServiceLinkView,
+  ) {
     this.serviceUser = ServiceUser
     this.serviceAuth = ServiceAuth
     this.serviceLink = ServiceLink
     this.serviceTag = ServiceTag
     this.serviceSearch = ServiceSearch
     this.servicePagination = ServicePagination
+    this.serviceLinkView = ServiceLinkView
   }
 
 
@@ -143,11 +153,6 @@ export class Router {
   }
 
 
-  private selectLinkView = (isCard: boolean) => {
-    Logger.log('Function: selectLinkView', __filename)
-    return isCard ? <Links /> : <Links view="table" />;
-  }
-
   public dashboard = async (ctx: Context) => {
     Logger.log('Function: dashboard', __filename)
     const user = await this.getUser(ctx)
@@ -159,8 +164,7 @@ export class Router {
     const isNumber = "number" === typeof user.user_id
     const userLinks = isNumber ? await this.getUserLinks(user.user_id) : []
     const tags = isNumber ? this.serviceTag.getTags(user.user_id) : []
-    const linkViewState = getCookie(ctx, 'linkView') ?? ''
-    const View = this.selectLinkView(!linkViewState)
+    const [View, linkViewState] = this.serviceLinkView.getLinkView(ctx)
     LinksContext.values = [userLinks]
 
     return ctx.html(
@@ -174,11 +178,11 @@ export class Router {
   public linkChangeView = async (ctx: Context) => {
     Logger.log('Function: linkChangeView', __filename)
     const body = await ctx.req.parseBody<{ viewState?: "on" }>()
-    setCookie(ctx, 'linkView', body.viewState ?? '', { httpOnly: true, secure: true })
+    const setViewTo = 'on' === body.viewState ? this.serviceLinkView.views.table : this.serviceLinkView.views.card
+    const View = this.serviceLinkView.setLinkView(ctx, setViewTo)
     const userId = await this.getUserId(ctx)
     const userLinks = "number" === typeof userId ? await this.getUserLinks(userId) : []
     LinksContext.values = [userLinks]
-    const View = this.selectLinkView(!body.viewState)
     const activePage = this.servicePagination.getActivePage(ctx)
     return ctx.html(
       <Fragment>
@@ -209,8 +213,7 @@ export class Router {
     }
 
     LinksContext.values = [links]
-    const linkViewState = getCookie(ctx, 'linkView') ?? ''
-    const View = this.selectLinkView(!linkViewState)
+    const [View] = this.serviceLinkView.getLinkView(ctx)
     return ctx.html(
       <Fragment>
         {View}
@@ -222,10 +225,33 @@ export class Router {
   }
 
 
+  private isNotValidBodyLinkAdd = (body: Stringify<Pick<Link, "url" | "created_at"> & { tags: string }>) => {
+    try {
+      Logger.log('Function: isValidBodyLinkAdd', '[ START ]', __filename)
+      const urlToAdd = new URL(body.url)
+      const isValidProtocol = 'https:' === urlToAdd.protocol
+      const domainParts = urlToAdd.hostname.split('.')
+      const topLevelDomain = (1 < domainParts.length && domainParts.at(-1)?.length) || 0
+      const isValidDomainname = 1 < topLevelDomain
+      return !(isValidProtocol && isValidDomainname);
+    } catch (error) {
+      Logger.error('Function: isValidBodyLinkAdd', '[ ERROR ]', __filename)
+      return true;
+    } finally {
+      Logger.log('Function: isValidBodyLinkAdd', '[ END ]', __filename)
+    }
+  }
+
+
   public linkAdd = async (ctx: Context) => {
     Logger.log('Function: linkAdd', __filename)
     type LinkAddBody = Prettify<Stringify<Pick<Link, "url" | "created_at"> & { tags: string }>>
     const formBody = await ctx.req.parseBody<LinkAddBody>()
+
+    if (this.isNotValidBodyLinkAdd(formBody)) {
+      Logger.warning('Function: linkAdd', __filename, 'link not valid')
+      return ctx.html(<Notification status="warn" header="Bad link!" body="Change to correct working link"></Notification>)
+    }
 
     const user = await this.getUser(ctx)
     if (null === user) {
@@ -236,8 +262,7 @@ export class Router {
     const isNewLinkCreate = await this.serviceLink.setNewLink(formBody, user.user_id)
     const userLinks = "number" === typeof user.user_id ? await this.getUserLinks(user.user_id) : []
     LinksContext.values = [userLinks]
-    const linkViewState = getCookie(ctx, 'linkView') ?? ''
-    const View = this.selectLinkView(!linkViewState)
+    const [View] = this.serviceLinkView.getLinkView(ctx)
 
     if (null === isNewLinkCreate) {
       Logger.error('Function: linkAdd', __filename, 'new link is null')
@@ -265,7 +290,7 @@ export class Router {
 
   public linkEdit = async (ctx: Context) => {
     Logger.log('Function: linkEdit', __filename)
-    const linkViewState = getCookie(ctx, 'linkView') ?? ''
+    const [_, linkViewState] = this.serviceLinkView.getLinkView(ctx)
     const linkId = ctx.req.query('linkId')
     const link = this.serviceLink.getLink(Number(linkId))
 
@@ -303,7 +328,7 @@ export class Router {
       return ctx.html(<Notification status="error" body="Can`t get link!" />);
     }
 
-    const linkViewState = getCookie(ctx, 'linkView') ?? ''
+    const [_, linkViewState] = this.serviceLinkView.getLinkView(ctx)
     return ctx.html(
       <LinkOne link={link} view={linkViewState} />
     );
@@ -319,7 +344,7 @@ export class Router {
       return ctx.html(<Notification status="error" body="Can`t get link!" />);
     }
 
-    const linkViewState = getCookie(ctx, 'linkView') ?? ''
+    const [_, linkViewState] = this.serviceLinkView.getLinkView(ctx)
     return ctx.html(
       <LinkOne link={link} view={linkViewState} />
     );
@@ -470,8 +495,7 @@ export class Router {
 
     const isNumber = "number" === typeof user.user_id
     const userLinks = isNumber ? await this.getUserLinks(user.user_id) : []
-    const linkViewState = getCookie(ctx, 'linkView') ?? ''
-    const View = this.selectLinkView(!linkViewState)
+    const [View] = this.serviceLinkView.getLinkView(ctx)
     LinksContext.values = [userLinks]
     const activePage = Number(body.page) || 1
     this.servicePagination.setActivePage(ctx, body.page)

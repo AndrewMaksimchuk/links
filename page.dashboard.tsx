@@ -2,13 +2,14 @@ import type { FC, PropsWithChildren } from 'hono/jsx'
 import type { User } from "./service.user"
 import type { Tag } from './service.tag'
 import type { Link } from "./service.link"
+import type { View } from './service.link-view'
 import { Fragment, createContext, useContext } from 'hono/jsx'
 import { routes } from "./service.router"
 import { TagNotification } from './component.tag-notification'
 import { Pagination } from './component.pagination'
 
 
-const ViewContext = createContext('')
+const ViewContext = createContext<View>('card')
 export const TagsContext = createContext<Tag[]>([])
 export const UserContext = createContext<User | null>(null)
 export const LinksContext = createContext<Link[] | null>(null)
@@ -104,7 +105,7 @@ const Search = () => {
 }
 
 const Views = () => {
-    const isChecked = Boolean(useContext(ViewContext))
+    const isChecked = useContext(ViewContext) === "card" ? false : true
     return (
         <fieldset>
             <legend>Select view</legend>
@@ -337,7 +338,7 @@ const Header = () => {
     );
 }
 
-export const Dashboard = (props: PropsWithChildren<{ user: User, linkViewState: string, tags: Tag[] }>) => {
+export const Dashboard = (props: PropsWithChildren<{ user: User, linkViewState: View, tags: Tag[] }>) => {
     return (
         <Fragment>
             <UserContext.Provider value={props.user}>
