@@ -1,13 +1,23 @@
 import ogs from 'open-graph-scraper'
+import { Logger } from './service.logger';
 
 
 export class ServiceOGP {
     static getMeta = async (url: string) => {
-        const { error, result } = await ogs({ url })
+        try {
+            Logger.log('Function: getMeta', '[ START ]', __filename)
+            const { error, result } = await ogs({ url })
 
-        if (error) {
+            if (error) {
+                return null;
+            }
+
+            return result;
+        } catch (error) {
+            Logger.error('Function: getMeta', '[ ERROR ]', __filename)
             return null;
+        } finally {
+            Logger.log('Function: getMeta', '[ END ]', __filename)
         }
-        return result;
     }
 }
