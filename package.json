@@ -16,7 +16,7 @@
     "install": "bun install",
     "run": "bun run server.index.tsx",
     "dev": "BUN_CONFIG_VERBOSE_FETCH=curl bun --watch --inspect run server.index.tsx",
-    "test": "bun test --watch",
+    "test": "bun test --watch --coverage",
     "check": "bunx tsc --strict --noEmit --watch"
   }
 }
