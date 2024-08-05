@@ -47,7 +47,7 @@ export const Add = () => {
         >
             <label for='link-add'>New link</label>
             <input
-                type="text"
+                type="url"
                 name="url"
                 id="link-add"
                 placeholder='https://picocss.com/docs/forms'
