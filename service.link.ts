@@ -1,26 +1,31 @@
+import type { OgObject } from "open-graph-scraper/types/lib/types"
 import type { LinkDatabase, ServiceDatabase, TagDatabase, VLinkDatabase, } from "./service.database"
 import type { Prettify, Stringify } from "./utility.types"
 import { Logger } from "./service.logger"
-import { ServiceOGP } from "./service.ogp"
 
 
+export type OGPGetMeta = (url: string) => Promise<OgObject | null>
 export type Link = Prettify<LinkDatabase & TagDatabase>
 
 
 export class ServiceLink {
     private database: ServiceDatabase
+    private openGraphProtocolGetMeta: OGPGetMeta
 
-    constructor(database: ServiceDatabase) {
+
+    constructor(database: ServiceDatabase, openGraphProtocolGetMeta: OGPGetMeta) {
         Logger.log('Function: constructor, class ServiceLink', __filename)
         this.database = database
+        this.openGraphProtocolGetMeta = openGraphProtocolGetMeta
     }
 
 
     public setNewLink = async (link: Prettify<Stringify<Pick<Link, "url" | "created_at"> & { tags: string }>>, userId: number) => {
         Logger.log('Function: setNewLink', __filename)
-        const tags = "NaN" === link.tags ? null : link.tags
-        const metaData = await ServiceOGP.getMeta(link.url)
-
+        const tagValue = parseInt(link.tags, 10)
+        const isTagNotValid = Number.isNaN(tagValue) || tagValue < 1
+        const tags = isTagNotValid ? null : link.tags
+        const metaData = await this.openGraphProtocolGetMeta(link.url)
         const newLink = {
             user_id: userId,
             url: link.url,

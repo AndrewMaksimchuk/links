@@ -3,20 +3,25 @@
   "module": "index.ts",
   "type": "module",
   "devDependencies": {
-    "@types/bun": "latest"
+    "@happy-dom/global-registrator": "^14.12.3",
+    "@types/bun": "^1.1.6"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
   "dependencies": {
     "hono": "^4.4.6",
+    "open-graph-scraper": "^6.7.2",
     "react": "^18.3.1"
   },
   "scripts": {
     "install": "bun install",
     "run": "bun run server.index.tsx",
-    "dev": "BUN_CONFIG_VERBOSE_FETCH=curl bun --watch --inspect run server.index.tsx",
-    "test": "bun test --watch --coverage",
+    "dev": "DATABASE=database.sqlite BUN_CONFIG_VERBOSE_FETCH=curl bun --watch --inspect run server.index.tsx",
+    "pretest": "rm -f database.test.sqlite; DATABASE=database.test.sqlite bun run test.before.ts",
+    "test": "DATABASE=database.test.sqlite bun test",
+    "posttest": "DATABASE=database.test.sqlite bun run test.after.ts",
+    "test-update": "DATABASE=database.test.sqlite bun test --update-snapshots",
     "check": "bunx tsc --strict --noEmit --watch"
   }
 }

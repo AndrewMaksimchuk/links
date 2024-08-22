@@ -1,0 +1,5 @@
+// Bun Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Component Pagination without links 1`] = `""`;
+
+exports[`Component Pagination with links 1`] = `"<div id="paginationSectionButtons" style="display:flex;flex-wrap:wrap;gap:1rem;margin-bottom:var(--pico-typography-spacing-vertical)" hx-swap-oob="outerHTML"><button style="--pico-form-element-spacing-vertical:0.125rem;--pico-form-element-spacing-horizontal:0.5rem" name="page" value="1" hx-post="/pagination-view-update" hx-push-url="/dashboard?page=1" hx-target="main" hx-swap="innerHTML">1</button><button style="--pico-form-element-spacing-vertical:0.125rem;--pico-form-element-spacing-horizontal:0.5rem" name="page" value="2" hx-post="/pagination-view-update" hx-push-url="/dashboard?page=2" hx-target="main" hx-swap="innerHTML">2</button></div>"`;

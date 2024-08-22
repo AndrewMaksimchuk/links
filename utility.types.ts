@@ -14,3 +14,10 @@ export type Stringify<T> = {
 export type Prettify<T> = {
     [K in keyof T]: T[K];
 } & {};
+
+
+declare module 'bun' {
+    interface Env {
+        DATABASE: string
+    }
+}

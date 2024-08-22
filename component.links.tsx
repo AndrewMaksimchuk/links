@@ -25,7 +25,7 @@ const Tag: FC<{ name: string, color?: string }> = (props) => {
 }
 
 
-const ButtonEdit: FC<{ linkId: number }> = (props) => {
+export const ButtonEdit: FC<{ linkId: number }> = (props) => {
     const query = `{"linkId": "${props.linkId}"}`
     return (
         <button
@@ -115,7 +115,7 @@ const LinkItemCard: FC<{ link: LinkItemProps }> = (props) => {
                 </a>
             </p>
             <footer>
-                <p style='text-align: right;'>{(new Date(props.link.created_at || Date.now())).toDateString()}</p>
+                <p style='text-align: right;'>{(new Date(props.link.created_at ?? Date.now())).toDateString()}</p>
                 <p style="text-align: right;">
                     {'string' === typeof props.link.name ? <Tag name={props.link.name} color={props.link.color}></Tag> : null}
                 </p>
@@ -146,7 +146,7 @@ const LinkItemTableItem: FC<{ link: LinkItemProps }> = (props) => {
                     {props.link.url}
                 </a>
             </td>
-            <td style="text-wrap: nowrap;">{(new Date(props.link.created_at || Date.now())).toDateString()}</td>
+            <td style="text-wrap: nowrap;">{(new Date(props.link.created_at ?? Date.now())).toDateString()}</td>
             <td>
                 {'string' === typeof props.link.name ? <Tag name={props.link.name} color={props.link.color}></Tag> : null}
             </td>
@@ -179,7 +179,7 @@ const LinkItemTable = (props: PropsWithChildren) => {
 }
 
 export const Links: FC<{ view: View }> = (props) => {
-    const links = useContext(LinksContext) ?? []
+    const links = useContext(LinksContext)
     const ViewOfLinkItem = props.view === 'table' ? LinkItemTableItem : LinkItemCard
     const RenderedLinkItem = links.map((linkData) => <ViewOfLinkItem link={linkData}></ViewOfLinkItem>)
     const View = props.view === "table" ? <LinkItemTable>{RenderedLinkItem}</LinkItemTable> : <LinkItemCardContainer>{RenderedLinkItem}</LinkItemCardContainer>
@@ -270,7 +270,7 @@ const LinkFormEditCard: FC<{ link: LinkItemProps }> = (props) => {
                     <input required type="text" name="url" id="updateLinkUrl" value={props.link.url} />
                 </p>
                 <footer>
-                    <p style='text-align: right;'>{(new Date(props.link.created_at || Date.now())).toDateString()}</p>
+                    <p style='text-align: right;'>{(new Date(props.link.created_at ?? Date.now())).toDateString()}</p>
                     <p style="text-align: right;">
                         <SelectTags styleLabel={{ display: 'none' }} styleSelect={{ margin: '0' }} selectedTag={props.link.tag_id} />
                     </p>

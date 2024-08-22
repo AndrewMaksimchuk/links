@@ -33,7 +33,7 @@ export const Pagination: FC<{ activePage: number }> = (props) => {
         marginBottom: 'var(--pico-typography-spacing-vertical)',
     }
 
-    const links = useContext(LinksContext) ?? []
+    const links = useContext(LinksContext)
     const linksLength = links.length
     const LINKSONPAGE = 30
     const numberPagesButtons = Math.ceil(linksLength / LINKSONPAGE)

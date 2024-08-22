@@ -1,5 +1,5 @@
 import ogs from 'open-graph-scraper'
-import { Logger } from './service.logger';
+import { Logger } from './service.logger'
 
 
 export class ServiceOGP {
@@ -9,6 +9,7 @@ export class ServiceOGP {
             const { error, result } = await ogs({ url })
 
             if (error) {
+                Logger.error('Function: getMeta', '[ ERROR ]', __filename)
                 return null;
             }
 

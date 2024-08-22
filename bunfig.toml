@@ -1,0 +1,6 @@
+telemetry = false
+
+[test]
+coverage = true
+preload = "./happydom.ts"
+coverageThreshold = 0.8

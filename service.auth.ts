@@ -1,4 +1,4 @@
-import { type Context } from 'hono';
+import type { Context } from 'hono';
 import {
   getSignedCookie,
   setSignedCookie,
@@ -28,7 +28,7 @@ export class ServiceAuth {
 
   public logout(ctx: Context) {
     Logger.log('Function: logout', __filename)
-    return Boolean(deleteCookie(ctx, "token"));
+    return Boolean(deleteCookie(ctx, cookieNames.auth));
   }
 
 

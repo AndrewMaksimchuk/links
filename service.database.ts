@@ -55,12 +55,13 @@ export class ServiceDatabase {
 
     private constructor() {
         Logger.log('Function: constructor, class ServiceDatabase', __filename)
-        this.database = new Database("database.sqlite")
+        this.database = new Database(process.env.DATABASE)
         this.createTableUsers()
         this.createTableLinks()
         this.createTableLinksVirtual()
         this.createTableTag()
     }
+
 
     private createTableUsers() {
         Logger.log('Function: createTableUsers', __filename)
@@ -152,6 +153,14 @@ export class ServiceDatabase {
     }
 
 
+    private getUserById(userId: number) {
+        Logger.log('Function: getUserById', __filename)
+        const sqlQuery = `SELECT * FROM users WHERE user_id = $userId;`
+        const query = this.database.query<UserDatabase, { $userId: number }>(sqlQuery)
+        return query.get({ $userId: userId });
+    }
+
+
     public getUser(telephone: string) {
         Logger.log('Function: getUser', __filename)
         const sqlQuery = `SELECT * FROM users WHERE telephone = $telephone;`
@@ -163,10 +172,26 @@ export class ServiceDatabase {
 
 
     public createUser(data: Omit<UserDatabase, "user_id">) {
-        Logger.log('Function: createUser', __filename)
-        const sqlQuery = `INSERT INTO users (telephone, password) VALUES (?, ?);`
-        this.database.run<string[]>(sqlQuery, [data.telephone, data.password])
-        return this.getUser(data.telephone);
+        try {
+            Logger.log('Function: createUser', __filename)
+            const sqlQuery = `INSERT INTO users (telephone, password) VALUES (?, ?);`
+            this.database.run<string[]>(sqlQuery, [data.telephone, data.password])
+            return this.getUser(data.telephone);
+        } catch (error) {
+            if (error instanceof Error) {
+                Logger.error('Function: createUser', __filename, error.message)
+            } else {
+                Logger.error('Function: createUser', __filename)
+            }
+            return null;
+        }
+    }
+
+
+    public deleteUser(userId: number) {
+        Logger.log('Function: deleteUser', __filename)
+        const sqlQuery = `DELETE FROM ${this.tables.users} WHERE user_id = ?`
+        return this.database.run(sqlQuery, [userId]);
     }
 
 
@@ -253,7 +278,7 @@ export class ServiceDatabase {
     private deleteVLink(linkId: number) {
         Logger.log('Function: deleteVLink', __filename)
         const sqlQuery = `DELETE FROM ${this.tables.vlinks} WHERE link_id = ?;`
-        this.database.run(sqlQuery, [linkId])
+        return this.database.run(sqlQuery, [linkId]) as unknown as { lastInsertRowid: number, changes: number };
     }
 
 
@@ -266,9 +291,9 @@ export class ServiceDatabase {
         }
 
         const sqlQuery = `DELETE FROM ${this.tables.links} WHERE link_id = ?;`
-        this.database.run(sqlQuery, [linkId])
+        const deletedLink = this.database.run(sqlQuery, [linkId]) as unknown as { lastInsertRowid: number, changes: number }
         this.deleteVLink(linkId)
-        return !Boolean(this.getLinkById(linkId));
+        return Boolean(deletedLink.changes);
     }
 
 
@@ -294,18 +319,38 @@ export class ServiceDatabase {
 
 
     public updateLink(link: VLinkDatabase) {
-        Logger.log('Function: updateLink', __filename)
-        const sqlQuery = `UPDATE ${this.tables.links} SET title = ?, url = ?, tags = ? WHERE link_id = ?;`
-        this.database.run(sqlQuery, [link.title, link.url, link.tags, link.link_id])
-        this.updateLinkVirtual(link)
-        return this.getLinkByIdWithTag(link.link_id);
+        try {
+            Logger.log('Function: updateLink', __filename)
+            const sqlQuery = `UPDATE ${this.tables.links} SET title = ?, url = ?, tags = ? WHERE link_id = ?;`
+            this.database.run(sqlQuery, [link.title, link.url, link.tags, link.link_id])
+            this.updateLinkVirtual(link)
+            return this.getLinkByIdWithTag(link.link_id);
+        } catch (error) {
+            if (error instanceof Error) {
+                Logger.error('Function: updateLink', __filename, error.message)
+            }
+            return null;
+        }
+    }
+
+
+    private getTag(tagId: number) {
+        Logger.log('Function: getTag', __filename)
+        const sqlQuery = `SELECT * FROM ${this.tables.tags} WHERE tag_id = ?;`
+        return this.database.query<TagDatabase, number>(sqlQuery).get(tagId);
     }
 
 
     public createTag(tag: Omit<TagDatabase, "tag_id" | "user_id">, userId: number) {
         Logger.log('Function: createTag', __filename)
+
+        if (null === this.getUserById(userId)) {
+            return null;
+        }
+
         const sqlQuery = `INSERT INTO ${this.tables.tags} (user_id, name, color) VALUES (?, ?, ?);`
-        this.database.run(sqlQuery, [userId, tag.name, tag.color])
+        const { lastInsertRowid } = this.database.run(sqlQuery, [userId, tag.name, tag.color]) as unknown as { lastInsertRowid: number }
+        return this.getTag(lastInsertRowid);
     }
 
 
@@ -319,8 +364,8 @@ export class ServiceDatabase {
     public deleteTag(tag_id: number) {
         Logger.log('Function: deleteTag', __filename)
         const sqlQuery = `DELETE FROM ${this.tables.tags} WHERE tag_id = ?;`
-        this.database.run(sqlQuery, [tag_id])
-        return tag_id;
+        const deletedTag = this.database.run(sqlQuery, [tag_id]) as unknown as { lastInsertRowid: number, changes: number }
+        return deletedTag.lastInsertRowid;
     }
 
 

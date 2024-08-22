@@ -1,0 +1,9 @@
+// Bun Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Component Notification status info 1`] = `"<div id="notification" hx-swap-oob="afterbegin"><div style="padding:var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal)" data-notificationId="0"><h2 style="border-bottom:solid gray">Information about some stuff</h2><p>Test info status</p><button onclick="this.parentElement.remove()">Close</button></div></div>"`;
+
+exports[`Component Notification status error 1`] = `"<div id="notification" hx-swap-oob="afterbegin"><div style="padding:var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal)" data-notificationId="0"><h2 style="border-bottom:solid red">Information about some stuff</h2><p>Test info status</p><button onclick="this.parentElement.remove()">Close</button></div></div>"`;
+
+exports[`Component Notification status success 1`] = `"<div id="notification" hx-swap-oob="afterbegin"><div style="padding:var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal)" data-notificationId="0"><h2 style="border-bottom:solid green">Information about some stuff</h2><p>Test info status</p><button onclick="this.parentElement.remove()">Close</button></div></div>"`;
+
+exports[`Component Notification status warn 1`] = `"<div id="notification" hx-swap-oob="afterbegin"><div style="padding:var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal)" data-notificationId="0"><h2 style="border-bottom:solid orange">Information about some stuff</h2><p>Test info status</p><button onclick="this.parentElement.remove()">Close</button></div></div>"`;

@@ -12,7 +12,7 @@ import { Pagination } from './component.pagination'
 const ViewContext = createContext<View>('card')
 export const TagsContext = createContext<Tag[]>([])
 export const UserContext = createContext<User | null>(null)
-export const LinksContext = createContext<Link[] | null>(null)
+export const LinksContext = createContext<Link[]>([])
 
 
 export const SelectTags: FC<{
