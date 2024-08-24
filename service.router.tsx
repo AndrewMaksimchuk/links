@@ -198,7 +198,6 @@ export class Router {
 
   public paginationViewUpdate = async (ctx: Context) => {
     Logger.log('Function: paginationViewUpdate', __filename)
-    const body = await ctx.req.parseBody<{ page: string }>()
     const user = await this.getUser(ctx)
 
     if (null === user) {
@@ -209,11 +208,10 @@ export class Router {
     const userLinks = isNumber ? await this.getUserLinks(user.user_id) : []
     const [View] = this.serviceLinkView.getLinkView(ctx)
     LinksContext.values = [userLinks]
+    const body = await ctx.req.parseBody<{ page: string }>()
     const activePage = Number(body.page) || 1
     this.servicePagination.setActivePage(ctx, body.page)
-
-    const notificationid = Date.now()
-    ctx.header('HX-Trigger', JSON.stringify({ notifyClose: { notificationid } }))
+    ctx.header('HX-Trigger', JSON.stringify({ notifyClose: { notificationid: Date.now() } }))
     return ctx.html(
       <Fragment>
         <LinksCounter />
