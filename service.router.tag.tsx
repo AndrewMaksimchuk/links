@@ -17,13 +17,13 @@ export class RouterTag {
 
     public tagCreate = async (ctx: Context) => {
         Logger.log('Function: tagCreate', __filename)
-        const body = await ctx.req.parseBody<Omit<Tag, "tag_id">>()
         const userId = await this.getUserId(ctx)
-
+        
         if (null == userId) {
             return ctx.html(<TagNotification text="Can`t create tag!" />);
         }
-
+        
+        const body = await ctx.req.parseBody<Omit<Tag, "tag_id">>()
         this.serviceTag.createTag(body, userId)
         const tag = this.serviceTag.getTags(userId).at(-1)
         return tag ? ctx.html(<TagNotification tagId={tag.tag_id} name={tag?.name} color={tag?.color} />) : ctx.html(<TagNotification text="Can`t create tag!" />);

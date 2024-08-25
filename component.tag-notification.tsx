@@ -20,16 +20,16 @@ const setStyleButtonDelete = (colorValue?: string) => {
 
 const ButtonDelete: FC<{ id: number, color?: string }> = (props) => {
     return (
-        <button 
-            type="button" 
-            class="outline" 
-            style={setStyleButtonDelete(props.color)} 
+        <button
+            type="button"
+            class="outline"
+            style={setStyleButtonDelete(props.color)}
             name="tagId"
             value={props.id}
-            hx-post={routes.tagDelete} 
-            hx-swap="delete" 
+            hx-post={routes.tagDelete}
+            hx-swap="delete"
             hx-target="closest span">
-                X
+            X
         </button>
     );
 }
@@ -41,11 +41,11 @@ const setStyle = (colorProperty?: string) => {
     return {
         color,
         backgroundColor,
-        border: `solid 1px ${color};`,
-        borderRadius: '1rem;',
-        padding: '0.125rem 0.5rem 0.25rem;',
-        display: "flex;",
-        alignItems: "center;",
+        border: `solid 1px ${color}`,
+        borderRadius: '1rem',
+        padding: '0.125rem 0.5rem 0.25rem',
+        display: "flex",
+        alignItems: "center",
     };
 }
 
@@ -54,7 +54,7 @@ export const TagNotification: FC<{ tagId?: number, name?: string, color?: string
     return (
         <span style={setStyle(props.color)}>
             {props.name} {props.text}
-            { props.text ? null : <ButtonDelete color={props.color} id={props.tagId ?? NaN}/> }
+            {props.text ? null : <ButtonDelete color={props.color} id={props.tagId ?? NaN} />}
         </span>
     );
 }
