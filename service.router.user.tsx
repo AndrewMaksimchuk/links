@@ -1,3 +1,4 @@
+import type { FC } from 'hono/jsx'
 import type { Context } from "hono"
 import type { ServiceAuth } from "./service.auth"
 import type { ServiceUser, User } from "./service.user"
@@ -8,6 +9,17 @@ import { Fragment } from "hono/jsx"
 import { Logger } from "./service.logger"
 import { Greeting, SettingsUser, UserContext } from './page.dashboard'
 import { Notification, type NotificationProps } from "./component.notification"
+
+
+const UserUpdateNameUI: FC<{ userNewName: string, notification: NotificationProps }> = (props) => {
+    return <Fragment>
+        <SettingsUser />
+        <div id="userGreeting" hx-swap-oob="outerHTML">
+            <Greeting name={props.userNewName} />
+        </div>
+        <Notification status={props.notification.status} body={props.notification.body}></Notification>
+    </Fragment>;
+}
 
 
 export class RouterUser {
@@ -70,38 +82,44 @@ export class RouterUser {
 
     public userUpdateName = async (ctx: Context) => {
         Logger.log('Function: userUpdateName', __filename)
-        const body = await ctx.req.parseBody<{ userName: string }>()
-        const currentUser = await this.getUser(ctx)
+        let userNewName = ""
         const notification: NotificationProps = {
             status: "warn",
             body: "Can`t update your name!",
         }
-        let userNewName = ""
 
-        if (body.userName && currentUser) {
-            const updatedCurrentUser = this.serviceUser.updateName(body.userName, currentUser)
-            if (updatedCurrentUser) {
-                if (currentUser.name === updatedCurrentUser.name) {
-                    notification.status = "info"
-                    notification.body = "Your name the same, nothing to change"
-                } else {
-                    UserContext.values = [updatedCurrentUser]
-                    notification.status = "success"
-                    notification.body = "Name is updated"
-                    userNewName = updatedCurrentUser.name
-                }
-            }
+        const body = await ctx.req.parseBody<{ userName: string }>()
+
+        if (0 === body.userName.length) {
+            return ctx.html(<Notification status={notification.status} body={notification.body}></Notification>);
         }
 
-        return ctx.html(
-            <Fragment>
-                <SettingsUser />
-                <div id="userGreeting" hx-swap-oob="outerHTML">
-                    <Greeting name={userNewName} />
-                </div>
-                <Notification status={notification.status} body={notification.body}></Notification>
-            </Fragment>
-        );
+        const currentUser = await this.getUser(ctx)
+
+        if (null === currentUser) {
+            notification.status = "error"
+            notification.body = "You bad!"
+            return ctx.html(<Notification status={notification.status} body={notification.body}></Notification>);
+        }
+
+        const updatedCurrentUser = this.serviceUser.updateName(body.userName, currentUser)
+
+        if (null === updatedCurrentUser) {
+            notification.status = "warn"
+            notification.body = "Can`t update your name!"
+            return ctx.html(<Notification status={notification.status} body={notification.body}></Notification>);
+        }
+
+        if (currentUser.name === updatedCurrentUser.name) {
+            notification.status = "info"
+            notification.body = "Your name the same, nothing to change"
+            return ctx.html(<Notification status={notification.status} body={notification.body}></Notification>);
+        }
+
+        UserContext.values = [updatedCurrentUser]
+        notification.status = "success"
+        notification.body = "Name is updated"
+        return ctx.html(<UserUpdateNameUI userNewName={updatedCurrentUser.name} notification={notification} />);
     }
 
 
