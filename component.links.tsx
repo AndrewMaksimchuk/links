@@ -193,7 +193,7 @@ export const Links: FC<{ view: View }> = (props) => {
 
 export const LinkOne: FC<{ link: Link, view: View }> = (props) => {
     const ViewOfLinkItem = props.view === 'table' ? LinkItemTableItem : LinkItemCard
-    return (<ViewOfLinkItem link={props.link}></ViewOfLinkItem>);
+    return <ViewOfLinkItem link={props.link} />;
 }
 
 

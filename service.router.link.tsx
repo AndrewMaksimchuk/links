@@ -65,10 +65,10 @@ export class RouterLink {
         try {
             Logger.log('Function: isValidBodyLinkAdd', '[ START ]', __filename)
             const urlToAdd = new URL(body.url)
-            const isValidProtocol = 'https:' === urlToAdd.protocol
+            const isValidProtocol = 'https:' === urlToAdd.protocol // TODO: refactore this function, add more exit points
             const domainParts = urlToAdd.hostname.split('.')
             const topLevelDomain = (1 < domainParts.length && domainParts.at(-1)?.length) || 0
-            const isValidDomainname = 1 < topLevelDomain
+            const isValidDomainname = 1 < topLevelDomain // TODO: change 1 to variable minLengthDomainName=1
             return !(isValidProtocol && isValidDomainname);
         } catch (error) {
             Logger.error('Function: isValidBodyLinkAdd', '[ ERROR ]', __filename)
@@ -95,9 +95,9 @@ export class RouterLink {
             return ctx.html(<Notification status="error" body="Can`t get user!"></Notification>)
         }
 
-        const isNewLinkCreate = await this.serviceLink.setNewLink(formBody, user.user_id)
         const userLinks = "number" === typeof user.user_id ? await this.getUserLinks(user.user_id) : []
         LinksContext.values = [userLinks]
+        const isNewLinkCreate = await this.serviceLink.setNewLink(formBody, user.user_id)
         const [View] = this.serviceLinkView.getLinkView(ctx)
 
         if (null === isNewLinkCreate) {
@@ -126,7 +126,6 @@ export class RouterLink {
 
     public linkEdit = async (ctx: Context) => {
         Logger.log('Function: linkEdit', __filename)
-        const [_, linkViewState] = this.serviceLinkView.getLinkView(ctx)
         const linkId = ctx.req.query('linkId')
         const link = this.serviceLink.getLink(Number(linkId))
 
@@ -137,11 +136,13 @@ export class RouterLink {
         const userId = await this.getUserId(ctx)
 
         if (null == userId) {
-            return ctx.html(<TagNotification text="Can`t create tag!" />);
+            return ctx.html(<TagNotification text="Can`t find you!" />);
         }
 
         const tags = this.serviceTag.getTags(userId)
         TagsContext.values = [tags]
+
+        const [_, linkViewState] = this.serviceLinkView.getLinkView(ctx)
 
         return ctx.html(
             <LinkFormEdit view={linkViewState} link={link} />
@@ -151,13 +152,13 @@ export class RouterLink {
 
     public linkUpdate = async (ctx: Context) => {
         Logger.log('Function: linkUpdate', __filename)
-        const body = await ctx.req.parseBody<Stringify<Pick<Link, "title" | "url" | "tags" | "link_id" | "description" | "site_name">>>()
         const userId = await this.getUserId(ctx)
 
         if (null === userId) {
             return ctx.html(<Notification status="error" body="Can`t get you!" />);
         }
 
+        const body = await ctx.req.parseBody<Stringify<Pick<Link, "title" | "url" | "tags" | "link_id" | "description" | "site_name">>>()
         const link = this.serviceLink.updateLink({ ...body, user_id: String(userId) })
 
         if (null === link) {
@@ -215,12 +216,11 @@ export class RouterLink {
         Logger.log('Function: linkAddFormUpdate', __filename)
         const userId = await this.getUserId(ctx)
 
-        if (null === userId) {
-            return ctx.html(<Add />);
+        if (null !== userId) {
+            const tags = this.serviceTag.getTags(userId)
+            TagsContext.values = [tags]
         }
 
-        const tags = this.serviceTag.getTags(userId)
-        TagsContext.values = [tags]
         return ctx.html(<Add />);
     }
 }

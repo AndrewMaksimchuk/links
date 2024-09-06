@@ -61,3 +61,22 @@ export const testUserLinks: (LinkDatabase & TagDatabase)[] = [
         color: 'red',
     }
 ]
+
+
+export const testTags = [
+    {
+        tag_id: 1,
+        name: 'html',
+        color: 'blue',
+    },
+    {
+        tag_id: 2,
+        name: 'css',
+        color: 'red',
+    },
+    {
+        tag_id: 3,
+        name: 'javascript',
+        color: 'yellow',
+    },
+]
