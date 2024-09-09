@@ -15,7 +15,6 @@
     "react": "^18.3.1"
   },
   "scripts": {
-    "install": "bun install",
     "run": "bun run server.index.tsx",
     "dev": "DATABASE=database.sqlite BUN_CONFIG_VERBOSE_FETCH=curl bun --watch --inspect run server.index.tsx",
     "pretest": "rm -f database.test.sqlite; DATABASE=database.test.sqlite bun run test.before.ts",

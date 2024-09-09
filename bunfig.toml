@@ -1,5 +1,8 @@
 telemetry = false
 
+[install.cache]
+disable = true
+
 [test]
 coverage = true
 preload = "./happydom.ts"

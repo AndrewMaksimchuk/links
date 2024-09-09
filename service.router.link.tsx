@@ -192,7 +192,6 @@ export class RouterLink {
         Logger.log('Function: linkDelete', __filename)
         const body = await ctx.req.parseBody<Stringify<Pick<Link, "link_id">>>()
         const userId = await this.getUserId(ctx)
-
         if (this.serviceLink.deleteLink(Number(body.link_id))) {
             const userLinks = "number" === typeof userId ? await this.getUserLinks(userId) : []
             LinksContext.values = [userLinks]
