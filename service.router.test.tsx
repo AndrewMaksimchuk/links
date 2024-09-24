@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { describe, test, expect } from 'bun:test'
+import { describe, test, expect, spyOn } from 'bun:test'
 import { HonoRequest } from './node_modules/hono/dist/request'
 import { Context } from './node_modules/hono/dist/context'
 import { Router } from './service.router'
@@ -29,8 +29,11 @@ describe('Service Router', () => {
                 getLoginToken: async () => '',
             }
         )
-        const res = await service.main(ctx)
-        expect(res.status).toBe(302)
+        const honoNext = {
+            next: () => ({ status: 200 })
+        }
+        const res = await service.usePrivateRoute(ctx, honoNext.next)
+        expect(res.status).toBe(200)
     })
 
 
@@ -45,8 +48,8 @@ describe('Service Router', () => {
                 getLoginToken: async () => false,
             }
         )
-        const res = await service.main(ctx)
-        expect(res.status).toBe(200)
+        const res = await service.usePrivateRoute(ctx)
+        expect(res.status).toBe(302)
     })
 
 
@@ -105,11 +108,19 @@ describe('Service Router', () => {
         const ctx = new Context(req)
         const service = new Router(
             {
-                findByPasswordHash: () => ({}),
+                findByPasswordHash: () => ({
+                    user_id: 1,
+                }),
             },
             {
                 getLoginToken: async () => '',
-            }, {}, {}, {}, {},
+            },
+            {
+                getLinks: () => [],
+            },
+            {
+                getTags: () => [],
+            }, {}, {},
             {
                 getLinkView: () => [<Links view='card' />, 'card']
             }
