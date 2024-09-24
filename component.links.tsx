@@ -1,16 +1,16 @@
 import type { FC, PropsWithChildren } from 'hono/jsx'
 import type { Link } from "./service.link"
+import type { View } from './service.link-view'
+import type { Style } from './utility.types'
 import { Fragment, useContext } from "hono/jsx"
 import { routes } from './service.router'
 import { LinksContext, SelectTags } from './page.dashboard'
-import type { View } from './service.link-view'
-
 
 type LinkItemProps = Partial<Link>
 
 
 const Tag: FC<{ name: string, color?: string }> = (props) => {
-    const TagStyle = {
+    const TagStyle: Style = {
         "--pico-color": "var(--pico-switch-color)",
         color: props.color ? props.color : 'initial',
         border: 'solid 1px ' + (props.color ? props.color : 'var(--pico-border-color)'),
@@ -65,7 +65,7 @@ const ButtonDelete: FC<{ link_id: number, onclick: stringifiedFunction }> = (pro
 
 
 const LinkItemCard: FC<{ link: LinkItemProps }> = (props) => {
-    const LinkItemStyleButtonGroup = {
+    const LinkItemStyleButtonGroup: Style = {
         display: 'flex',
         flexWrap: 'wrap',
         alignItems: 'center',
@@ -73,18 +73,18 @@ const LinkItemCard: FC<{ link: LinkItemProps }> = (props) => {
         gap: '1rem',
     }
 
-    const LinkUrlStyle = {
+    const LinkUrlStyle: Style = {
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         // whiteSpace: 'nowrap',
     }
 
-    const articleStyle = {
+    const articleStyle: Style = {
         display: 'grid',
         gridTemplateRows: '115px 1fr auto',
     }
 
-    const HeaderStyle = {
+    const HeaderStyle: Style = {
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         display: '-webkit-box',
@@ -129,7 +129,7 @@ const LinkItemCard: FC<{ link: LinkItemProps }> = (props) => {
 }
 
 const LinkItemCardContainer = (props: PropsWithChildren) => {
-    const style = { gridTemplateColumns: 'repeat(4, 1fr)' }
+    const style: Style = { gridTemplateColumns: 'repeat(4, 1fr)' }
     return (
         <section class="grid" style={style}>
             {props.children}
@@ -197,7 +197,7 @@ export const LinkOne: FC<{ link: Link, view: View }> = (props) => {
 }
 
 
-const LinkFormEditButtonStyle = {
+const LinkFormEditButtonStyle: Style = {
     margin: '0',
     padding: '0.125rem 0.25rem',
 }
@@ -239,7 +239,7 @@ const LinkFormEditButtonCancel: FC<{
 
 
 const LinkFormEditCard: FC<{ link: LinkItemProps }> = (props) => {
-    const LinkItemStyleButtonGroup = {
+    const LinkItemStyleButtonGroup: Style = {
         display: 'flex',
         flexWrap: 'wrap',
         alignItems: 'center',
@@ -247,7 +247,7 @@ const LinkFormEditCard: FC<{ link: LinkItemProps }> = (props) => {
         gap: '1rem',
     }
 
-    const LinkUrlStyle = {
+    const LinkUrlStyle: Style = {
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
@@ -290,7 +290,7 @@ const LinkFormEditCard: FC<{ link: LinkItemProps }> = (props) => {
 
 
 const LinkFormEditTable: FC<{ link: Link }> = (props) => {
-    const styleInput = {
+    const styleInput: Style = {
         margin: '0',
     }
 

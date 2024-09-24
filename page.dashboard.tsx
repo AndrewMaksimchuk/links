@@ -3,6 +3,7 @@ import type { User } from "./service.user"
 import type { Tag } from './service.tag'
 import type { Link } from "./service.link"
 import type { View } from './service.link-view'
+import type { Style } from './utility.types'
 import { Fragment, createContext, useContext } from 'hono/jsx'
 import { routes } from "./service.router"
 import { TagNotification } from './component.tag-notification'
@@ -316,7 +317,7 @@ const Theme = () => {
 
 
 const Header = () => {
-    const style = {
+    const style: Style = {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',

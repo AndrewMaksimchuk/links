@@ -1,4 +1,6 @@
 import type { FC } from "hono/jsx"
+import type { Style } from "./utility.types"
+
 
 type Status = "success" | "error" | "warn" | "info"
 
@@ -11,7 +13,7 @@ export interface NotificationProps {
 }
 
 
-const NotificationStyle = {
+const NotificationStyle: Style = {
     padding: "var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal)",
 }
 

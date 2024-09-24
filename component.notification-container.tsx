@@ -1,4 +1,6 @@
-const notificationStyle = {
+import type { Style } from "./utility.types";
+
+const notificationStyle: Style = {
     "--pico-background-color": "var(--pico-form-element-background-color)",
     "--pico-border-color": "var(--pico-form-element-border-color)",
     "--pico-color": "var(--pico-form-element-color)",

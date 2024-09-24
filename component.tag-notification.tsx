@@ -1,8 +1,9 @@
 import type { FC } from "hono/jsx";
+import type { Style } from "./utility.types";
 import { routes } from "./service.router"
 
 
-const setStyleButtonDelete = (colorValue?: string) => {
+const setStyleButtonDelete = (colorValue?: string): Style => {
     const color = colorValue ? colorValue : "initial"
     return {
         color,
@@ -35,7 +36,7 @@ const ButtonDelete: FC<{ id: number, color?: string }> = (props) => {
 }
 
 
-const setStyle = (colorProperty?: string) => {
+const setStyle = (colorProperty?: string): Style => {
     const color = colorProperty ? colorProperty : "initial"
     const backgroundColor = color ? `${color}30;` : "initial"
     return {

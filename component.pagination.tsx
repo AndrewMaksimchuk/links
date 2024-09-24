@@ -1,10 +1,11 @@
 import type { FC } from 'hono/jsx'
+import type { Style } from './utility.types'
 import { Fragment, useContext } from "hono/jsx"
 import { LinksContext } from './page.dashboard'
 import { routes } from './service.router'
 
 
-const styleButton = {
+const styleButton: Style = {
     "--pico-form-element-spacing-vertical": "0.125rem",
     "--pico-form-element-spacing-horizontal": "0.5rem",
 }
@@ -26,7 +27,7 @@ const NumberButton: FC<{ value: number }> = (props) => {
 
 
 export const Pagination: FC<{ activePage: number }> = (props) => {
-    const style = {
+    const style: Style = {
         display: 'flex',
         flexWrap: 'wrap',
         gap: '1rem',
