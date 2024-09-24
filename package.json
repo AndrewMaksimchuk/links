@@ -23,5 +23,13 @@
     "posttest": "DATABASE=database.test.sqlite bun run test.after.ts",
     "test-update": "DATABASE=database.test.sqlite bun test --update-snapshots",
     "check": "bunx tsc --strict --noEmit --watch"
-  }
+  },
+  "engines": {
+    "bun": "1.1.26"
+  },
+  "engineStrict": true,
+  "os": [
+    "linux"
+  ],
+  "packageManager": "bun@1.1.26"
 }
