@@ -11,6 +11,10 @@
 - [The Open Graph protocol](https://ogp.me/)
 - [open-graph-scraper](https://www.npmjs.com/package/open-graph-scraper)
 
+### Resources for tests
+
+- [hono cookie](https://github.com/honojs/hono/blob/main/src/helper/cookie/index.test.ts)
+- [hono context](https://github.com/honojs/hono/blob/main/src/context.test.ts)
 
 ## Debug
 
