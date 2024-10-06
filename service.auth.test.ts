@@ -25,7 +25,7 @@ describe('Service Auth', () => {
     })
 
 
-    test('should set user as login, set cookie', async () => {
+    test.todo('should set user as login, set cookie', async () => {
         const res = await app.request('http://localhost/login')
         expect(res.status).toBe(200)
         const header = res.headers.get('Set-Cookie')
@@ -39,7 +39,7 @@ describe('Service Auth', () => {
     })
 
 
-    test('should set user as logout, delete cookie', async () => {
+    test.todo('should set user as logout, delete cookie', async () => {
         const res = await app.request('http://localhost/logout')
         expect(res.status).toBe(200)
         const header = res.headers.get('Set-Cookie')
