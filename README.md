@@ -1,5 +1,8 @@
 # Links
 
+![screenshot of user dashboard - main page](screenshot_dashboard.png)
+
+![screenshot of user settings](screenshot_settings.png)
 
 ## Resources
 
@@ -37,7 +40,7 @@ monitorEvents(htmx.find("#theElement"));
 
 ## Example open graph protocol
 
-```
+```html
 <title>The Rock (1996)</title>
 <meta property="og:title" content="The Rock" />
 <meta property="og:type" content="video.movie" />
