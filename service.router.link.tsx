@@ -95,10 +95,10 @@ export class RouterLink {
             return ctx.html(<Notification status="error" body="Can`t get user!"></Notification>)
         }
 
-        const userLinks = "number" === typeof user.user_id ? await this.getUserLinks(user.user_id) : []
-        LinksContext.values = [userLinks]
         const isNewLinkCreate = await this.serviceLink.setNewLink(formBody, user.user_id)
         const [View] = this.serviceLinkView.getLinkView(ctx)
+        const userLinks = "number" === typeof user.user_id ? await this.getUserLinks(user.user_id) : []
+        LinksContext.values = [userLinks]
 
         if (null === isNewLinkCreate) {
             Logger.error('Function: linkAdd', __filename, 'new link is null')
