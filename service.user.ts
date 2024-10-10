@@ -44,7 +44,6 @@ export class ServiceUser {
             const password = await this.createPasswordHash(data.password)
             return await this.database.createUser({ ...data, password });
         } catch (error) {
-            console.log('ERROR')
             if (error instanceof Error) {
                 Logger.error('Function: setNewUser', __filename, error.message)
             }

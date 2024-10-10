@@ -25,7 +25,7 @@ export const link: Link = {
     tags: null,
     /* LinkOGP */
     title: 'Test link',
-    image: '',
+    image: 'https://www.w3schools.com/images/w3schools_logo_436_2.png',
     audio: '',
     description: 'Use in test cases',
     locale: 'en',

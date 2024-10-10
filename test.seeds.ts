@@ -25,6 +25,7 @@ export const linkTest = {
     title: '',
     url: 'https://developer.mozilla.org',
     user_id: 1,
+    image: 'https://www.w3schools.com/images/w3schools_logo_436_2.png',
 }
 
 

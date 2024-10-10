@@ -35,6 +35,7 @@ export class ServiceLink {
             description: metaData?.ogDescription ?? '',
             locale: metaData?.ogLocale ?? '',
             site_name: metaData?.ogSiteName ?? '',
+            image: metaData?.ogImage?.at(0)?.url ?? metaData?.twitterImage?.at(0)?.url ?? '',
         }
         return this.database.createLink(newLink);
     }

@@ -92,6 +92,11 @@ const LinkItemCard: FC<{ link: LinkItemProps }> = (props) => {
         '-webkit-box-orient': 'vertical',
     }
 
+    const imageStyle: Style = {
+        width: '100%',
+        height: 'auto',
+    }
+
     const title = props.link.title ? props.link.title : '-'
 
     return (
@@ -113,6 +118,9 @@ const LinkItemCard: FC<{ link: LinkItemProps }> = (props) => {
                 >
                     {props.link.url}
                 </a>
+            </p>
+            <p>
+                {props.link.image && <img src={props.link.image} alt={props.link.description ?? ''} style={imageStyle} />}
             </p>
             <footer>
                 <p style='text-align: right;'>{(new Date(props.link.created_at ?? Date.now())).toDateString()}</p>

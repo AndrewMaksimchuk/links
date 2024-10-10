@@ -186,6 +186,7 @@ describe('Service Database', () => {
             title: '',
             url: 'https://en.wikipedia.org/wiki/URL',
             user_id: 1,
+            image: 'https://www.w3schools.com/images/w3schools_logo_436_2.png',
         })!
         const linkToUpdate = { ...createdLink, title: 'URL - Wikipedia' }
         const updatedLink = database.updateLink(linkToUpdate)
