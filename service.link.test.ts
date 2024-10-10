@@ -12,13 +12,13 @@ const USER_ID = 1
 type ServiceDatabaseTest = Partial<Pick<ServiceDatabase, "createLink" | "getLinksUser" | "getLinkByIdWithTag" | "deleteLink" | "updateLink">>
 type ServiceOptions = Partial<{ database: ServiceDatabaseTest, ogpGetMeta: OGPGetMeta }>
 const setService = (serviceOptions: ServiceOptions = {}) => {
-    const ogpGetMeta = (url: string) => Promise.resolve(null)
+    const ogpGetMeta = () => Promise.resolve(null)
     const database = {
         createLink: (link: string) => link,
         getLinksUser: () => [],
         getLinkByIdWithTag: () => null,
         deleteLink: () => false,
-        updateLink: (link) => null,
+        updateLink: () => null,
         ...serviceOptions.database,
     } as ServiceDatabase
     return new ServiceLink(database, serviceOptions.ogpGetMeta ?? ogpGetMeta);
@@ -83,7 +83,7 @@ describe('Service ServiceLink', () => {
     test('should return all user links, reverse order', () => {
         const service = setService({
             database: {
-                getLinksUser: (userId: number) => testUserLinks,
+                getLinksUser: () => testUserLinks,
             }
         })
         const links = service.getLinks(USER_ID)
@@ -121,7 +121,7 @@ describe('Service ServiceLink', () => {
         const userLink = testUserLinks[0]
         const service = setService({
             database: {
-                deleteLink: (linkId: number) => true,
+                deleteLink: () => true,
             }
         })
         const isDelete = service.deleteLink(userLink.link_id)
@@ -151,7 +151,7 @@ describe('Service ServiceLink', () => {
 
         const service = setService({
             database: {
-                updateLink: (link: VLinkDatabase) => userLinkToUpdate
+                updateLink: () => userLinkToUpdate
             },
         })
         const updatedLink = service.updateLink(userLinkToUpdate)

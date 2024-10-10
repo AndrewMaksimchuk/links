@@ -3,8 +3,6 @@ import { describe, test, expect } from 'bun:test'
 import { HonoRequest } from './node_modules/hono/dist/request'
 import { Context } from './node_modules/hono/dist/context'
 import { RouterTag } from './service.router.tag'
-import { Links } from "./component.links"
-import { testUserLinks } from './test.fixture'
 
 
 let service: RouterTag
@@ -62,7 +60,6 @@ describe('Service router tag', () => {
 
 
     test('tagDelete(), should delete existing tag', async () => {
-        const tag = { tag_id: 1, name: 'html', color: 'blue' }
         const client = new Request('http://localhost/tag-delete', { method: "POST", body: new URLSearchParams("tag_id=1") })
         const req = new HonoRequest(client)
         const ctx = new Context(req)

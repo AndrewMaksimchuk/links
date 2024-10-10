@@ -14,7 +14,7 @@ export class ServiceOGP {
             }
 
             return result;
-        } catch (error) {
+        } catch {
             Logger.error('Function: getMeta', '[ ERROR ]', __filename)
             return null;
         } finally {

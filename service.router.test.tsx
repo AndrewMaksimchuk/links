@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { describe, test, expect, spyOn } from 'bun:test'
+import { describe, test, expect } from 'bun:test'
 import { HonoRequest } from './node_modules/hono/dist/request'
 import { Context } from './node_modules/hono/dist/context'
 import { Router } from './service.router'

@@ -70,7 +70,7 @@ export class RouterLink {
             const topLevelDomain = (1 < domainParts.length && domainParts.at(-1)?.length) || 0
             const isValidDomainname = 1 < topLevelDomain // TODO: change 1 to variable minLengthDomainName=1
             return !(isValidProtocol && isValidDomainname);
-        } catch (error) {
+        } catch {
             Logger.error('Function: isValidBodyLinkAdd', '[ ERROR ]', __filename)
             return true;
         } finally {
@@ -142,7 +142,7 @@ export class RouterLink {
         const tags = this.serviceTag.getTags(userId)
         TagsContext.values = [tags]
 
-        const [_, linkViewState] = this.serviceLinkView.getLinkView(ctx)
+        const [, linkViewState] = this.serviceLinkView.getLinkView(ctx)
 
         return ctx.html(
             <LinkFormEdit view={linkViewState} link={link} />
@@ -165,7 +165,7 @@ export class RouterLink {
             return ctx.html(<Notification status="error" body="Can`t get link!" />);
         }
 
-        const [_, linkViewState] = this.serviceLinkView.getLinkView(ctx)
+        const [, linkViewState] = this.serviceLinkView.getLinkView(ctx)
         return ctx.html(
             <LinkOne link={link} view={linkViewState} />
         );
@@ -181,7 +181,7 @@ export class RouterLink {
             return ctx.html(<Notification status="error" body="Can`t get link!" />);
         }
 
-        const [_, linkViewState] = this.serviceLinkView.getLinkView(ctx)
+        const [, linkViewState] = this.serviceLinkView.getLinkView(ctx)
         return ctx.html(
             <LinkOne link={link} view={linkViewState} />
         );

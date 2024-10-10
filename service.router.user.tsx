@@ -82,7 +82,6 @@ export class RouterUser {
 
     public userUpdateName = async (ctx: Context) => {
         Logger.log('Function: userUpdateName', __filename)
-        let userNewName = ""
         const notification: NotificationProps = {
             status: "warn",
             body: "Can`t update your name!",

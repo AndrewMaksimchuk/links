@@ -267,7 +267,7 @@ export class ServiceDatabase {
             }
 
             return newCreatedLink;
-        } catch (error) {
+        } catch {
             Logger.error('Function: createLink', '[ ERROR ]', __filename)
             return null;
         } finally {

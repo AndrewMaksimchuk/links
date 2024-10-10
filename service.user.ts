@@ -2,7 +2,7 @@ import type { ServiceDatabase, UserDatabase } from "./service.database"
 import { Logger } from "./service.logger"
 
 
-export interface User extends UserDatabase { }
+export type User = UserDatabase
 
 
 export class ServiceUser {
