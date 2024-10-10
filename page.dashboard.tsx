@@ -199,11 +199,6 @@ export const SettingsUser = () => {
                     placeholder={user?.name ?? "Taras"} />
                 <input type="submit" value="Update name" />
             </form>
-            <a 
-                href={routes.userDataDownload}
-            >
-                Download your data
-            </a>
         </div>
     );
 }
@@ -251,7 +246,10 @@ export const SettingsModal = () => {
                 </header>
                 <SettingsUser />
                 <SettingsTags />
-                    <footer>
+                <footer>
+                    <a href={routes.userDataDownload}>
+                        Download your data
+                    </a>
                 </footer>
             </article>
         </dialog>
