@@ -181,6 +181,7 @@ export const SettingsUser = () => {
     return (
         <div>
             <form
+                autocomplete="off"
                 hx-post={routes.userUpdateName}
                 hx-target="this"
                 hx-swap="outerHTML"
