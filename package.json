@@ -26,7 +26,8 @@
     "posttest": "DATABASE=database.test.sqlite bun run test.after.ts",
     "test-update": "DATABASE=database.test.sqlite bun test --update-snapshots",
     "check-ts": "bunx tsc --strict --noEmit --watch",
-    "lint": "bun eslint *.ts*"
+    "lint": "bun eslint *.ts*",
+    "compile": "bun build server.index.tsx --compile --minify --bytecode --outfile links"
   },
   "engines": {
     "bun": "1.1.26"
