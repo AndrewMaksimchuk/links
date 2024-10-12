@@ -3,6 +3,7 @@
 *.sqlite
 links
 links.desktop
+links.log
 
 # Logs
 
