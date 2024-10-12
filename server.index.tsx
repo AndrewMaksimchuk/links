@@ -1,3 +1,4 @@
+import './service.application'
 import { Hono } from 'hono'
 import { logger } from 'hono/logger'
 import { useRouter } from './server.router'

@@ -20,7 +20,7 @@
   },
   "scripts": {
     "run": "bun run server.index.tsx",
-    "dev": "DATABASE=database.sqlite BUN_CONFIG_VERBOSE_FETCH=curl bun --watch --inspect run server.index.tsx | tee -a links.log",
+    "dev": "DATABASE=database.sqlite BUN_CONFIG_VERBOSE_FETCH=curl bun --watch --inspect run server.index.tsx",
     "pretest": "rm -f database.test.sqlite; DATABASE=database.test.sqlite bun run test.before.ts",
     "test": "DATABASE=database.test.sqlite bun test",
     "posttest": "DATABASE=database.test.sqlite bun run test.after.ts",

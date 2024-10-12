@@ -38,5 +38,6 @@ export type Prettify<T> = {
 declare module 'bun' {
     interface Env {
         DATABASE: string
+        HOME: string
     }
 }

@@ -1,3 +1,7 @@
+import { join } from "node:path"
+import { appendFile } from "node:fs/promises"
+import { getApplicationDirectory, LOG_FILE } from "./service.application"
+
 type Status = "LOG" | "ERROR" | "WARNING"
 
 export class Logger {
@@ -20,9 +24,14 @@ export class Logger {
         return `${this.metadata(status)} ` + messages.join('; ');
     }
 
+    private static toFile(message: string) {
+        appendFile(join(getApplicationDirectory(), LOG_FILE), message + '\n', "utf-8")
+    }
+
     public static log(...messages: string[]) {
         if ('test' === process.env.NODE_ENV) return;
         const log = this.setMessage("LOG", messages)
+        this.toFile(log)
         console.log(log)
         return log;
     }
@@ -30,6 +39,7 @@ export class Logger {
     public static error(...messages: string[]) {
         if ('test' === process.env.NODE_ENV) return;
         const log = this.setMessage("ERROR", messages)
+        this.toFile(log)
         console.log(log)
         return log;
     }
@@ -37,6 +47,7 @@ export class Logger {
     public static warning(...messages: string[]) {
         if ('test' === process.env.NODE_ENV) return;
         const log = this.setMessage("WARNING", messages)
+        this.toFile(log)
         console.log(log)
         return log;
     }
