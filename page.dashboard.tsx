@@ -315,6 +315,15 @@ const Theme = () => {
 }
 
 
+const Application = () => {
+    return (
+        <form hx-post={routes.applicationClose} style="margin: 0;">
+            <button type="submit" className="outline" style="margin: 0;">Close</button>
+        </form>
+    );
+}
+
+
 const Header = () => {
     const style: Style = {
         display: 'flex',
@@ -329,8 +338,9 @@ const Header = () => {
                 <Greeting name={user?.name} />
                 <div style="display: flex; align-items: center; gap: 1rem;">
                     <Theme />
-                    <Settings></Settings>
-                    <Logout></Logout>
+                    <Settings/>
+                    <Application/>
+                    <Logout/>
                 </div>
             </div>
             <Nav></Nav>

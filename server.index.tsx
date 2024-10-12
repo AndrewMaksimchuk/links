@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { logger } from 'hono/logger'
 import { useRouter } from './server.router'
+import { browserRun } from './service.browser'
 
 
 const app = new Hono({
@@ -10,6 +11,9 @@ const app = new Hono({
 
 app.use(logger())
 useRouter(app)
+
+
+browserRun()
 
 
 export default {

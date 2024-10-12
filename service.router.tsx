@@ -16,6 +16,7 @@ import { Pagination } from "./component.pagination"
 import { RouterTag } from "./service.router.tag"
 import { RouterLink } from "./service.router.link"
 import { RouterUser } from "./service.router.user"
+import { RouterApplication } from "./service.router.application"
 
 
 export const routes = {
@@ -37,6 +38,7 @@ export const routes = {
   userDataDownload: '/user-data-download',
   paginationViewUpdate: '/pagination-view-update',
   settings: '/settings',
+  applicationClose: '/close',
 } as const
 
 
@@ -225,5 +227,11 @@ export class Router {
   public settings = (ctx: Context) => {
     Logger.log('Function: settings', __filename)
     return this.dashboard(ctx);
+  }
+
+
+  public applicationClose = (ctx: Context) => {
+    Logger.log('Function: applicationClose', __filename)
+    return RouterApplication.close(ctx);
   }
 }

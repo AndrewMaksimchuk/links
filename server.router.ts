@@ -57,6 +57,7 @@ const useRoutesPrivate = (app: Hono) => {
     app.get(serviceRouter.routes.userDataDownload, serviceRouter.userDataDownload)
     app.post(serviceRouter.routes.paginationViewUpdate, serviceRouter.paginationViewUpdate)
     app.get(serviceRouter.routes.settings, serviceRouter.settings)
+    app.post(serviceRouter.routes.applicationClose, serviceRouter.applicationClose)
 }
 
 
