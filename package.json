@@ -30,11 +30,11 @@
     "compile": "bun build server.index.tsx --compile --minify --bytecode --outfile links"
   },
   "engines": {
-    "bun": "1.1.26"
+    "bun": "1.2.18"
   },
   "engineStrict": true,
   "os": [
     "linux"
   ],
-  "packageManager": "bun@1.1.26"
+  "packageManager": "bun@1.2.18"
 }
