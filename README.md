@@ -13,6 +13,7 @@
 - [alpine.js](https://alpinejs.dev/start-here)
 - [The Open Graph protocol](https://ogp.me/)
 - [open-graph-scraper](https://www.npmjs.com/package/open-graph-scraper)
+- [https](https://github.com/FiloSottile/mkcert)
 
 ### Resources for tests
 
