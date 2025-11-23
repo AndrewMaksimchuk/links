@@ -165,12 +165,15 @@ const LinkItemCard: FC<{ link: LinkItemProps }> = (props) => {
   );
 };
 
-const LinkItemCardContainer = (props: PropsWithChildren) => {
+const LinkItemCardContainer = async (props: PropsWithChildren) => {
+  const file = Bun.file("./component.links.css");
+  const cssContent = await file.text();
   const style: Style = { gridTemplateColumns: "repeat(4, 1fr)" };
   return (
-    <section class="grid" style={style}>
-      {props.children}
-    </section>
+    <Fragment>
+      <style>{cssContent}</style>
+      <section class="grid">{props.children}</section>
+    </Fragment>
   );
 };
 
@@ -194,17 +197,21 @@ const LinkItemTableItem: FC<{ link: LinkItemProps }> = (props) => {
         ) : null}
       </td>
 
-      <td style="display: flex; gap: 1rem;">
-        {props.link.link_id ? <ButtonEdit linkId={props.link.link_id} /> : null}
-        <ButtonDelete
-          link_id={props.link.link_id || 0}
-          onclick="this.parentElement.parentElement.remove()"
-        />
-        <ButtonShare
-          text=""
-          title={props.link.title ?? "-"}
-          url={props.link.url ?? ""}
-        />
+      <td>
+        <div style="display: flex; gap: 1rem;">
+          {props.link.link_id ? (
+            <ButtonEdit linkId={props.link.link_id} />
+          ) : null}
+          <ButtonDelete
+            link_id={props.link.link_id || 0}
+            onclick="this.parentElement.parentElement.remove()"
+          />
+          <ButtonShare
+            text=""
+            title={props.link.title ?? "-"}
+            url={props.link.url ?? ""}
+          />
+        </div>
       </td>
     </tr>
   );

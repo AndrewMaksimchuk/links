@@ -375,7 +375,7 @@ const Header = () => {
     <header>
       <div style={style}>
         <Greeting name={user?.name} />
-        <div style="display: flex; align-items: center; gap: 1rem;">
+        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; justify-content: end;">
           <Theme />
           <Settings />
           <Application />
@@ -401,7 +401,7 @@ export const Dashboard = (
         </ViewContext.Provider>
       </UserContext.Provider>
       <Pagination activePage={1} />
-      <main>{props.children}</main>
+      <main style="overflow: scroll;">{props.children}</main>
     </Fragment>
   );
 };
