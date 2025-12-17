@@ -24,7 +24,7 @@ const ButtonDelete: FC<{ id: number, color?: string }> = (props) => {
         <button
             type="button"
             class="outline"
-            style={setStyleButtonDelete(props.color)}
+            style={{...setStyleButtonDelete(props.color)}}
             name="tagId"
             value={props.id}
             hx-post={routes.tagDelete}
@@ -53,7 +53,7 @@ const setStyle = (colorProperty?: string): Style => {
 
 export const TagNotification: FC<{ tagId?: number, name?: string, color?: string, text?: string }> = (props) => {
     return (
-        <span style={setStyle(props.color)}>
+        <span style={{...setStyle(props.color)}}>
             {props.name} {props.text}
             {props.text ? null : <ButtonDelete color={props.color} id={props.tagId ?? NaN} />}
         </span>

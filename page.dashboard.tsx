@@ -373,7 +373,7 @@ const Header = () => {
   const user = useContext(UserContext);
   return (
     <header>
-      <div style={style}>
+      <div style={{...style}}>
         <Greeting name={user?.name} />
         <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; justify-content: end;">
           <Theme />

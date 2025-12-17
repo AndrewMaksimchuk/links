@@ -1,4 +1,4 @@
-// Bun Snapshot v1, https://goo.gl/fbAQLP
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
 
 exports[`Component TagNotification without props 1`] = `"<span style="color:initial;background-color:initial30;;border:solid 1px initial;border-radius:1rem;padding:0.125rem 0.5rem 0.25rem;display:flex;align-items:center"> <button type="button" class="outline" style="color:initial;border-color:initial;padding:0;;border-radius:100%;;width:3ch;;aspect-ratio:1;;font-size:0.75rem;;margin:0;;margin-left:0.5rem;" name="tagId" value="NaN" hx-post="/tag-delete" hx-swap="delete" hx-target="closest span">X</button></span>"`;
 

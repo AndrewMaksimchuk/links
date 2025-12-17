@@ -50,6 +50,9 @@ export class Router {
   private servicePagination: ServicePagination;
   private serviceLinkView: ServiceLinkView;
   private serviceRouterMiddleware: ServiceRouterMiddleware;
+  public routerTag: RouterTag;
+  public routerLink: RouterLink;
+  public routerUser: RouterUser;
 
   constructor(
     ServiceUser: ServiceUser,
@@ -69,28 +72,25 @@ export class Router {
     this.servicePagination = ServicePagination;
     this.serviceLinkView = ServiceLinkView;
     this.serviceRouterMiddleware = ServiceRouterMiddleware;
-    Object.assign(this, new RouterTag(this.serviceTag, this.serviceRouterMiddleware.getUserId));
-    Object.assign(
-      this,
-      new RouterLink(
-        this.serviceLink,
-        this.serviceTag,
-        this.servicePagination,
-        this.serviceLinkView,
-        this.serviceRouterMiddleware.getUser,
-        this.serviceRouterMiddleware.getUserId,
-        this.serviceRouterMiddleware.getUserLinks
-      )
+    this.routerTag = new RouterTag(
+      this.serviceTag,
+      this.serviceRouterMiddleware.getUserId
     );
-    Object.assign(
-      this,
-      new RouterUser(
-        this.serviceUser,
-        this.serviceAuth,
-        this.routes,
-        this.serviceRouterMiddleware.getUser,
-        this.serviceRouterMiddleware.getUserId
-      )
+    this.routerLink = new RouterLink(
+      this.serviceLink,
+      this.serviceTag,
+      this.servicePagination,
+      this.serviceLinkView,
+      this.serviceRouterMiddleware.getUser,
+      this.serviceRouterMiddleware.getUserId,
+      this.serviceRouterMiddleware.getUserLinks
+    );
+    this.routerUser = new RouterUser(
+      this.serviceUser,
+      this.serviceAuth,
+      this.routes,
+      this.serviceRouterMiddleware.getUser,
+      this.serviceRouterMiddleware.getUserId
     );
   }
 

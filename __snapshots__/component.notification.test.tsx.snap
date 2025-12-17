@@ -1,4 +1,4 @@
-// Bun Snapshot v1, https://goo.gl/fbAQLP
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
 
 exports[`Component Notification status info 1`] = `"<div id="notification" hx-swap-oob="afterbegin"><div style="padding:var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal)" data-notificationId="0"><h2 style="border-bottom:solid gray">Information about some stuff</h2><p>Test info status</p><button onclick="this.parentElement.remove()">Close</button></div></div>"`;
 

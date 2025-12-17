@@ -1,4 +1,36 @@
-// Bun Snapshot v1, https://goo.gl/fbAQLP
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`Component Links view is card 1`] = `
+"<style>section.grid {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+@media screen and (max-width: 1024px) {
+  section.grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media screen and (max-width: 768px) {
+  section.grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+</style><section class="grid"></section>"
+`;
+
+exports[`Component Links view is table 1`] = `"<table class="striped"><thead><tr><th scope="col">Title</th><th scope="col">Url</th><th scope="col">Date</th><th scope="col">Tags</th><th scope="col">Control</th></tr></thead><tbody></tbody></table>"`;
+
+exports[`Component LinkOne view is card 1`] = `"<article id="l0" style="display:grid;grid-template-rows:115px 1fr auto"><header style="overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical" title="Test link">Test link</header><p style="overflow:hidden;text-overflow:ellipsis"><a href="test.com" target="_blank" title="test.com">test.com</a></p><p><img src="https://www.w3schools.com/images/w3schools_logo_436_2.png" alt="Use in test cases" style="width:100%;height:auto"/></p><footer><p style="text-align: right;">Thu Jan 01 1970</p><p style="text-align: right;"><span style="--pico-color:var(--pico-switch-color);color:initial;border:solid 1px var(--pico-border-color);border-radius:1.25em;background-color:var(--pico-background-color);line-height:1.25em;padding:0.25rem 0.75rem"></span></p><p style="display:flex;flex-wrap:wrap;align-items:center;justify-content:right;gap:1rem"><button type="button" style="margin: 0; padding: 0.125rem 0.25rem;" class="outline" hx-delete="/link-delete" hx-target="#notification" hx-swap="afterbegin" hx-on--after-request="this.parentElement.parentElement.parentElement.remove()" hx-indicator="#indicator" hx-disabled-elt="this" name="link_id" value="0">Delete</button><div x-data="{canShare: Boolean(navigator.share)}"><template x-if="canShare"><button type="button" style="margin: 0; padding: 0.125rem 0.25rem;" class="outline" x-data="{ title: &#39;Test link&#39;, text: &#39;&#39;, url: &#39;test.com&#39;, shareLink() { navigator.share &amp;&amp; navigator.share({title: this.title, text: this.text, url: this.url}) } }" x-on:click="shareLink">Share</button></template></div></p></footer></article>"`;
+
+exports[`Component LinkOne view is table 1`] = `"<tr id="l0"><th scope="row" style="max-width: 30ch;">Test link</th><td style="text-wrap: nowrap; max-width: 30ch; overflow: hidden; text-overflow: ellipsis;"><a href="test.com" target="_blank" title="test.com">test.com</a></td><td style="text-wrap: nowrap;">Thu Jan 01 1970</td><td><span style="--pico-color:var(--pico-switch-color);color:initial;border:solid 1px var(--pico-border-color);border-radius:1.25em;background-color:var(--pico-background-color);line-height:1.25em;padding:0.25rem 0.75rem"></span></td><td><div style="display: flex; gap: 1rem;"><button type="button" style="margin: 0; padding: 0.125rem 0.25rem;" class="outline" hx-delete="/link-delete" hx-target="#notification" hx-swap="afterbegin" hx-on--after-request="this.parentElement.parentElement.remove()" hx-indicator="#indicator" hx-disabled-elt="this" name="link_id" value="0">Delete</button><div x-data="{canShare: Boolean(navigator.share)}"><template x-if="canShare"><button type="button" style="margin: 0; padding: 0.125rem 0.25rem;" class="outline" x-data="{ title: &#39;Test link&#39;, text: &#39;&#39;, url: &#39;test.com&#39;, shareLink() { navigator.share &amp;&amp; navigator.share({title: this.title, text: this.text, url: this.url}) } }" x-on:click="shareLink">Share</button></template></div></div></td></tr>"`;
+
+exports[`Component LinkFormEdit view is card 1`] = `"<article><form hx-patch="/link-update" hx-swap="outerHTML" hx-target="closest article" hx-vals="{&quot;link_id&quot;:0}"><header><input required="" type="text" name="title" id="updateLinkTitle" value="Test link"/></header><p style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><input required="" type="text" name="url" id="updateLinkUrl" value="test.com"/></p><footer><p style="text-align: right;">Thu Jan 01 1970</p><p style="text-align: right;"><label for="tags" style="display:none">Select tags</label><select id="tags" name="tags" required="" aria-label="Select" style="margin:0"><option value="1">html</option><option value="2">css</option><option value="3">javascript</option></select></p><p style="display:flex;flex-wrap:wrap;align-items:center;justify-content:right;gap:1rem"><button type="submit" class="outline" style="margin:0;padding:0.125rem 0.25rem">Update</button><button type="button" class="outline" style="margin:0;padding:0.125rem 0.25rem;width:100%" name="linkId" value="0" hx-post="/link-get" hx-swap="outerHTML" hx-target="closest article">Cancel</button></p></footer></form></article>"`;
+
+exports[`Component LinkFormEdit view is table 1`] = `"<tr style="height: 100%;"><form hx-patch="/link-update" hx-swap="outerHTML" hx-target="closest tr" hx-vals="{&quot;link_id&quot;:0}"><th scope="row"><input required="" style="margin:0" type="text" name="title" id="updateLinkTitle" value="Test link"/></th><td style="text-wrap: nowrap; max-width: 30ch; overflow: hidden; text-overflow: ellipsis;"><input required="" style="margin:0" type="text" name="url" id="updateLinkUrl" value="test.com"/></td><td style="text-wrap: nowrap;">Thu Jan 01 1970</td><td><label for="tags" style="display:none">Select tags</label><select id="tags" name="tags" required="" aria-label="Select" style="margin:0"><option value="1">html</option><option value="2">css</option><option value="3">javascript</option></select></td><td style="display: flex; gap: 1rem; height: 100%;"><button type="submit" class="outline" style="margin:0;padding:0.125rem 0.25rem">Update</button><button type="button" class="outline" style="margin:0;padding:0.125rem 0.25rem" name="linkId" value="0" hx-post="/link-get" hx-swap="outerHTML" hx-target="closest tr">Cancel</button></td></form></tr>"`;
+
+exports[`Component ButtonEdit 1`] = `"<button type="button" style="margin: 0; padding: 0.125rem 0.25rem;" class="outline" hx-get="/link-edit" hx-vals="{&quot;linkId&quot;: &quot;0&quot;}" hx-target="#l0" hx-swap="outerHTML">Edit</button>"`;
 
 exports[`Component Pagination without links 1`] = `""`;
 

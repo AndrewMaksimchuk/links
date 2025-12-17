@@ -13,7 +13,7 @@ const styleButton: Style = {
 
 const NumberButton: FC<{ value: number }> = (props) => {
     return (<button
-        style={styleButton}
+        style={{...styleButton}}
         name="page"
         value={props.value}
         hx-post={routes.paginationViewUpdate}
@@ -50,7 +50,7 @@ export const Pagination: FC<{ activePage: number }> = (props) => {
     LinksContext.values = [paginationView]
 
     return (
-        <div id="paginationSectionButtons" style={style} hx-swap-oob="outerHTML">
+        <div id="paginationSectionButtons" style={{...style}} hx-swap-oob="outerHTML">
             {pagesButtons}
         </div>
     );

@@ -21,7 +21,7 @@ const Tag: FC<{ name: string; color?: string }> = (props) => {
     lineHeight: "1.25em",
     padding: "0.25rem 0.75rem",
   };
-  return <span style={TagStyle}>{props.name}</span>;
+  return <span style={TagStyle as unknown as string}>{props.name}</span>;
 };
 
 export const ButtonEdit: FC<{ linkId: number }> = (props) => {
@@ -123,11 +123,11 @@ const LinkItemCard: FC<{ link: LinkItemProps }> = (props) => {
   const title = props.link.title ? props.link.title : "-";
 
   return (
-    <article id={"l" + String(props.link.link_id)} style={articleStyle}>
-      <header style={HeaderStyle} title={title}>
+    <article id={"l" + String(props.link.link_id)} style={articleStyle as unknown as string}>
+      <header style={HeaderStyle as unknown as string} title={title}>
         {title}
       </header>
-      <p style={LinkUrlStyle}>
+      <p style={LinkUrlStyle as unknown as string}>
         <a href={props.link.url} target="_blank" title={props.link.url}>
           {props.link.url}
         </a>
@@ -137,7 +137,7 @@ const LinkItemCard: FC<{ link: LinkItemProps }> = (props) => {
           <img
             src={props.link.image}
             alt={props.link.description ?? ""}
-            style={imageStyle}
+            style={imageStyle as unknown as string}
           />
         )}
       </p>
@@ -150,7 +150,7 @@ const LinkItemCard: FC<{ link: LinkItemProps }> = (props) => {
             <Tag name={props.link.name} color={props.link.color}></Tag>
           ) : null}
         </p>
-        <p style={LinkItemStyleButtonGroup}>
+        <p style={LinkItemStyleButtonGroup as unknown as string}>
           {props.link.link_id ? (
             <ButtonEdit linkId={props.link.link_id} />
           ) : null}
@@ -168,7 +168,6 @@ const LinkItemCard: FC<{ link: LinkItemProps }> = (props) => {
 const LinkItemCardContainer = async (props: PropsWithChildren) => {
   const file = Bun.file("./component.links.css");
   const cssContent = await file.text();
-  const style: Style = { gridTemplateColumns: "repeat(4, 1fr)" };
   return (
     <Fragment>
       <style>{cssContent}</style>
@@ -330,7 +329,7 @@ const LinkFormEditCard: FC<{ link: LinkItemProps }> = (props) => {
             value={props.link.title ?? ""}
           />
         </header>
-        <p style={LinkUrlStyle}>
+        <p style={{...LinkUrlStyle}}>
           <input
             required
             type="text"
@@ -350,7 +349,7 @@ const LinkFormEditCard: FC<{ link: LinkItemProps }> = (props) => {
               selectedTag={props.link.tag_id}
             />
           </p>
-          <p style={LinkItemStyleButtonGroup}>
+          <p style={{...LinkItemStyleButtonGroup}}>
             <LinkFormEditButtonUpdate />
             <LinkFormEditButtonCancel
               linkId={props.link.link_id}
@@ -382,7 +381,7 @@ const LinkFormEditTable: FC<{ link: Link }> = (props) => {
         <th scope="row">
           <input
             required
-            style={styleInput}
+            style={{...styleInput}}
             type="text"
             name="title"
             id="updateLinkTitle"
@@ -392,7 +391,7 @@ const LinkFormEditTable: FC<{ link: Link }> = (props) => {
         <td style="text-wrap: nowrap; max-width: 30ch; overflow: hidden; text-overflow: ellipsis;">
           <input
             required
-            style={styleInput}
+            style={{...styleInput}}
             type="text"
             name="url"
             id="updateLinkUrl"

@@ -22,12 +22,12 @@ export class ServiceLinkView {
 
 
     constructor(
-        ServiceTag: ServiceTag,
+        serviceTag: ServiceTag,
         getUserId: (ctx: Context) => Promise<number | null>,
     ) {
         Logger.log('Function: constructor, class ServiceLinkView', __filename)
         this.getUserId = getUserId
-        this.serviceTag = ServiceTag
+        this.serviceTag = serviceTag
     }
 
 

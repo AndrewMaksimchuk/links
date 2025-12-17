@@ -33,7 +33,7 @@ const setStatusStyle = (status: Status) => {
 export const Notification: FC<NotificationProps> = (props) => {
     return (
         <div id="notification" hx-swap-oob="afterbegin" >
-            <div style={NotificationStyle} data-notificationId={props.notificationid}>
+            <div style={{...NotificationStyle}} data-notificationId={props.notificationid}>
                 <h2 style={setStatusStyle(props.status)}>{props.header}</h2>
                 <p>{props.body}</p>
                 <button onclick="this.parentElement.remove()">Close</button>

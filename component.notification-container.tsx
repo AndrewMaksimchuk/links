@@ -33,7 +33,7 @@ export const NotificationContainer = () => {
     return (
         <section
             id='notification'
-            style={notificationStyle}
+            style={{...notificationStyle}}
             dangerouslySetInnerHTML={script}
         >
         </section>
