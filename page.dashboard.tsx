@@ -392,16 +392,16 @@ export const Dashboard = (
 ) => {
   return (
     <Fragment>
-      <UserContext.Provider value={props.user}>
-        <ViewContext.Provider value={props.linkViewState}>
-          <TagsContext.Provider value={props.tags}>
-            <Header />
-            <SettingsModal />
-          </TagsContext.Provider>
-        </ViewContext.Provider>
-      </UserContext.Provider>
-      <Pagination activePage={1} />
-      <main style="overflow: scroll;">{props.children}</main>
+      <TagsContext.Provider value={props.tags}>
+        <UserContext.Provider value={props.user}>
+          <ViewContext.Provider value={props.linkViewState}>
+              <Header />
+              <SettingsModal />
+          </ViewContext.Provider>
+        </UserContext.Provider>
+        <Pagination activePage={1} />
+        <main style="overflow: scroll;">{props.children}</main>
+      </TagsContext.Provider>
     </Fragment>
   );
 };

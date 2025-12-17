@@ -5,6 +5,7 @@ import type { ServiceLink } from "./service.link";
 import type { ServiceSearch } from "./service.search";
 import type { ServicePagination } from "./service.pagination";
 import type { ServiceLinkView } from "./service.link-view";
+import type { ServiceRouterMiddleware } from "./service.router.middleware";
 import { Fragment } from "hono/jsx";
 import { Dashboard, LinksContext, LinksCounter } from "./page.dashboard";
 import { ServiceTag } from "./service.tag";
@@ -48,6 +49,7 @@ export class Router {
   private serviceSearch: ServiceSearch;
   private servicePagination: ServicePagination;
   private serviceLinkView: ServiceLinkView;
+  private serviceRouterMiddleware: ServiceRouterMiddleware;
 
   constructor(
     ServiceUser: ServiceUser,
@@ -56,7 +58,8 @@ export class Router {
     ServiceTag: ServiceTag,
     ServiceSearch: ServiceSearch,
     ServicePagination: ServicePagination,
-    ServiceLinkView: ServiceLinkView
+    ServiceLinkView: ServiceLinkView,
+    ServiceRouterMiddleware: ServiceRouterMiddleware,
   ) {
     this.serviceUser = ServiceUser;
     this.serviceAuth = ServiceAuth;
@@ -65,7 +68,8 @@ export class Router {
     this.serviceSearch = ServiceSearch;
     this.servicePagination = ServicePagination;
     this.serviceLinkView = ServiceLinkView;
-    Object.assign(this, new RouterTag(this.serviceTag, this.getUserId));
+    this.serviceRouterMiddleware = ServiceRouterMiddleware;
+    Object.assign(this, new RouterTag(this.serviceTag, this.serviceRouterMiddleware.getUserId));
     Object.assign(
       this,
       new RouterLink(
@@ -73,9 +77,9 @@ export class Router {
         this.serviceTag,
         this.servicePagination,
         this.serviceLinkView,
-        this.getUser,
-        this.getUserId,
-        this.getUserLinks
+        this.serviceRouterMiddleware.getUser,
+        this.serviceRouterMiddleware.getUserId,
+        this.serviceRouterMiddleware.getUserLinks
       )
     );
     Object.assign(
@@ -84,62 +88,24 @@ export class Router {
         this.serviceUser,
         this.serviceAuth,
         this.routes,
-        this.getUser,
-        this.getUserId
+        this.serviceRouterMiddleware.getUser,
+        this.serviceRouterMiddleware.getUserId
       )
     );
   }
-
-  private getUser = async (ctx: Context) => {
-    Logger.log("Function: getUser", __filename);
-    const token = await this.serviceAuth.getLoginToken(ctx);
-    if ("string" !== typeof token) {
-      return null;
-    }
-
-    return this.serviceUser.findByPasswordHash(token);
-  };
-
-  private itCanPass = async (ctx: Context) => {
-    Logger.log("Function: itCanPass", __filename);
-    const token = await this.serviceAuth.getLoginToken(ctx);
-
-    if ("string" !== typeof token) {
-      return false;
-    }
-
-    if (null === this.serviceUser.findByPasswordHash(token)) {
-      return false;
-    }
-
-    return true;
-  };
-
-  private getUserId = async (ctx: Context) => {
-    Logger.log("Function: getUserId", __filename);
-    const token = await this.serviceAuth.getLoginToken(ctx);
-    return "string" === typeof token
-      ? this.serviceUser.getUserData(token, "user_id")
-      : null;
-  };
-
-  private getUserLinks = async (userId: number) => {
-    Logger.log("Function: getUserLinks", __filename);
-    return "number" === typeof userId ? this.serviceLink.getLinks(userId) : [];
-  };
 
   public routes = routes;
 
   public usePrivateRoute = async (ctx: Context, next: Next) => {
     Logger.log("Function: usePrivateRoute", __filename);
-    return (await this.itCanPass(ctx))
+    return (await this.serviceRouterMiddleware.itCanPass(ctx))
       ? await next()
       : ctx.redirect(this.routes.main);
   };
 
   public main = async (ctx: Context) => {
     Logger.log("Function: main", __filename);
-    return (await this.itCanPass(ctx))
+    return (await this.serviceRouterMiddleware.itCanPass(ctx))
       ? ctx.redirect(this.routes.dashboard)
       : ctx.html(
           <Layout>
@@ -150,17 +116,25 @@ export class Router {
 
   public dashboard = async (ctx: Context) => {
     Logger.log("Function: dashboard", __filename);
-    const user = await this.getUser(ctx);
+    const user = await this.serviceRouterMiddleware.getUser(ctx);
 
     if (null === user) {
       return ctx.redirect(this.routes.login);
     }
 
     const isNumber = "number" === typeof user.user_id;
-    const userLinks = isNumber ? await this.getUserLinks(user.user_id) : [];
     const tags = isNumber ? this.serviceTag.getTags(user.user_id) : [];
-    const [View, linkViewState] = this.serviceLinkView.getLinkView(ctx);
-    LinksContext.values = [userLinks];
+    const [View, linkViewState] = await this.serviceLinkView.getLinkView(ctx);
+    const userLinks = isNumber ? await this.serviceRouterMiddleware.getUserLinks(user.user_id) : [];
+
+    const requestQueryTag = ctx.req.query("tag")
+
+    const userLinksQueryTag =
+      typeof requestQueryTag === "string" && requestQueryTag.length > 0
+        ? userLinks.filter((link) => link.name === requestQueryTag)
+        : undefined; 
+
+    LinksContext.values = [userLinksQueryTag ?? userLinks];
 
     ctx.header("Permissions-Policy", "web-share=*");
     // ctx.header("Permissions-Policy", "web-share=self");
@@ -181,7 +155,7 @@ export class Router {
       return ctx.html("Need more letters!");
     }
 
-    const userId = await this.getUserId(ctx);
+    const userId = await this.serviceRouterMiddleware.getUserId(ctx);
     if (null === userId) {
       return ctx.html("Can`t find you!");
     }
@@ -195,7 +169,7 @@ export class Router {
     }
 
     LinksContext.values = [links];
-    const [View] = this.serviceLinkView.getLinkView(ctx);
+    const [View] = await this.serviceLinkView.getLinkView(ctx);
     return ctx.html(
       <Fragment>
         {View}
@@ -214,7 +188,7 @@ export class Router {
 
   public paginationViewUpdate = async (ctx: Context) => {
     Logger.log("Function: paginationViewUpdate", __filename);
-    const user = await this.getUser(ctx);
+    const user = await this.serviceRouterMiddleware.getUser(ctx);
 
     if (null === user) {
       return ctx.html(
@@ -223,8 +197,8 @@ export class Router {
     }
 
     const isNumber = "number" === typeof user.user_id;
-    const userLinks = isNumber ? await this.getUserLinks(user.user_id) : [];
-    const [View] = this.serviceLinkView.getLinkView(ctx);
+    const userLinks = isNumber ? await this.serviceRouterMiddleware.getUserLinks(user.user_id) : [];
+    const [View] = await this.serviceLinkView.getLinkView(ctx);
     LinksContext.values = [userLinks];
     const body = await ctx.req.parseBody<{ page: string }>();
     const activePage = Number(body.page) || 1;

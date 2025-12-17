@@ -51,7 +51,7 @@ describe('Service ServiceLinkView', () => {
 
 
     app.get('/view-card', async (ctx) => {
-        const [Representation, name] = service.getLinkView(ctx)
+        const [Representation, name] = await service.getLinkView(ctx)
         const stream = renderToReadableStream(Representation)
         const html = await Bun.readableStreamToText(stream)
         return ctx.json({

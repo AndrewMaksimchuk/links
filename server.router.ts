@@ -10,16 +10,32 @@ import { ServiceSearch } from './service.search'
 import { ServicePagination } from './service.pagination'
 import { ServiceLinkView } from './service.link-view'
 import { ServiceOGP } from './service.ogp'
+import { ServiceRouterMiddleware } from "./service.router.middleware"
 
+
+const ServiceUserInstance = new ServiceUser(ServiceDatabase.instance)
+const ServiceAuthInstance = new ServiceAuth()
+const ServiceLinkInstance = new ServiceLink(ServiceDatabase.instance, ServiceOGP.getMeta)
+const ServiceTagInstance = new ServiceTag(ServiceDatabase.instance)
+const ServiceRouterMiddlewareInstance = new ServiceRouterMiddleware(
+    ServiceUserInstance,
+    ServiceAuthInstance,
+    ServiceLinkInstance,
+)
+const ServiceLinkViewInstance = new ServiceLinkView(
+    ServiceTagInstance,
+    ServiceRouterMiddlewareInstance.getUserId
+)
 
 const serviceRouter = new Router(
-    new ServiceUser(ServiceDatabase.instance),
-    new ServiceAuth(),
-    new ServiceLink(ServiceDatabase.instance, ServiceOGP.getMeta),
-    new ServiceTag(ServiceDatabase.instance),
+    ServiceUserInstance,
+    ServiceAuthInstance,
+    ServiceLinkInstance,
+    ServiceTagInstance,
     new ServiceSearch(ServiceDatabase.instance),
     new ServicePagination(),
-    new ServiceLinkView(),
+    ServiceLinkViewInstance,
+    ServiceRouterMiddlewareInstance,
 )
 
 
@@ -40,7 +56,6 @@ const useRoutesPublic = (app: Hono) => {
 
 
 const useRoutesPrivate = (app: Hono) => {
-    app.use(serviceRouter.usePrivateRoute)
     app.use(serviceRouter.usePrivateRoute)
     app.get(serviceRouter.routes.dashboard, serviceRouter.dashboard)
     app.post(serviceRouter.routes.search, serviceRouter.search)

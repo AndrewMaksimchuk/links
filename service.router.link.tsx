@@ -96,7 +96,7 @@ export class RouterLink {
         }
 
         const isNewLinkCreate = await this.serviceLink.setNewLink(formBody, user.user_id)
-        const [View] = this.serviceLinkView.getLinkView(ctx)
+        const [View] = await this.serviceLinkView.getLinkView(ctx)
         const userLinks = "number" === typeof user.user_id ? await this.getUserLinks(user.user_id) : []
         LinksContext.values = [userLinks]
 
@@ -142,7 +142,7 @@ export class RouterLink {
         const tags = this.serviceTag.getTags(userId)
         TagsContext.values = [tags]
 
-        const [, linkViewState] = this.serviceLinkView.getLinkView(ctx)
+        const [, linkViewState] = await this.serviceLinkView.getLinkView(ctx)
 
         return ctx.html(
             <LinkFormEdit view={linkViewState} link={link} />
@@ -165,7 +165,7 @@ export class RouterLink {
             return ctx.html(<Notification status="error" body="Can`t get link!" />);
         }
 
-        const [, linkViewState] = this.serviceLinkView.getLinkView(ctx)
+        const [, linkViewState] = await this.serviceLinkView.getLinkView(ctx)
         return ctx.html(
             <LinkOne link={link} view={linkViewState} />
         );
@@ -181,7 +181,7 @@ export class RouterLink {
             return ctx.html(<Notification status="error" body="Can`t get link!" />);
         }
 
-        const [, linkViewState] = this.serviceLinkView.getLinkView(ctx)
+        const [, linkViewState] = await this.serviceLinkView.getLinkView(ctx)
         return ctx.html(
             <LinkOne link={link} view={linkViewState} />
         );
